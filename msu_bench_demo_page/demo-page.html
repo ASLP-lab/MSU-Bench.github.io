@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>MSU-Bench Demo</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f8;
+    }
+
+    header {
+      background-color: #007acc;
+      color: white;
+      text-align: center;
+      padding: 30px 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .nav-bar {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      padding: 20px 0;
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-bar a {
+      text-decoration: none;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .section {
+      padding: 50px 20px;
+      max-width: 1000px;
+      margin: 40px auto;
+      background-color: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+
+    .section h2 {
+      font-size: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 8px;
+      color: #007acc;
+    }
+
+    .toggle-lang {
+      position: fixed;
+      top: 20px;
+      right: 30px;
+      padding: 8px 16px;
+      background: #007acc;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      z-index: 999;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .appendix-button {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #333;
+      color: #fff;
+      font-weight: bold;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .appendix-button:hover {
+      background-color: #555;
+    }
+
+    img.diagram {
+      width: 100%;
+      max-width: 700px;
+      display: block;
+      margin: 20px auto;
+      border: 1px solid #ddd;
+    }
+
+    .lang-en, .lang-zh {
+      display: none;
+    }
+
+    /* 默认展示中文 */
+    .lang-en { display: block; }
+
+    .section p {
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    /* 样例css */
+    .dataset-description {
+    margin: 10px 0 20px 0;
+    padding: 10px 15px;
+    background-color: #f9f9f9;
+    border-left: 4px solid #4caf50;
+    font-size: 14px;
+    border-radius: 5px;
+    }
+    .dataset-description p {
+    margin: 0;
+    line-height: 1.6;
+    }
+    /* 数据来源大类 */
+    .data-source-box {
+        border-left: 6px solid;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        padding: 16px 20px;
+        margin: 30px 0;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .data-source-box h2 {
+        margin-top: 0;
+        font-size: 1.25em;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .data-source-box p {
+        font-size: 0.95em;
+        color: #333;
+        margin-bottom: 0;
+    }
+    .section-container {
+      display: flex;
+      gap: 20px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .language-column h3 {
+      text-align: center;
+      margin: 10px 0;
+    }
+    table.qa1-zh {
+        border-collapse: collapse;
+        width: 80%;
+        margin: 20px auto;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 14px;
+        text-align: center;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .qa1-zh th, .qa1-zh td {
+        border: 1px solid #333;       /* 黑色边框 */
+        padding: 12px 16px;           /* 内边距更舒服 */
+    }
+
+    .qa1-zh th {
+        background-color: #f2f2f2;    /* 表头背景色 */
+        font-weight: bold;
+    }
+
+    .qa1-zhtr:nth-child(even) {
+        background-color: #fafafa;    /* 偶数行底色交替 */
+    }
+
+    .qa1-zh tr:hover {
+        background-color: #f1f1f1;    /* 鼠标悬浮高亮 */
+    }
+    table.qa1-en {
+        border-collapse: collapse;
+        width: 80%;
+        margin: 20px auto;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 14px;
+        text-align: center;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .qa1-en th, .qa1-en td {
+        border: 1px solid #333;       /* 黑色边框 */
+        padding: 12px 16px;           /* 内边距更舒服 */
+    }
+
+    .qa1-en th {
+        background-color: #f2f2f2;    /* 表头背景色 */
+        font-weight: bold;
+    }
+
+    .qa1-en tr:nth-child(even) {
+        background-color: #fafafa;    /* 偶数行底色交替 */
+    }
+
+    .qa1-en tr:hover {
+        background-color: #f1f1f1;    /* 鼠标悬浮高亮 */
+    }
+
+    .language-toggle {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .language-toggle button {
+      padding: 8px 16px;
+      margin: 0 5px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .audio-section {
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 10px;
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    h2.audio-title {
+      margin-top: 0;
+    }
+
+    audio {
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .toggle-button {
+      padding: 6px 12px;
+      margin: 10px 5px;
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- 中英文切换按钮 -->
+  <button class="toggle-lang" onclick="toggleLanguage()">EN / 中文</button>
+
+  <header>
+    <h1>MSU-Bench: Towards Understanding the Conversational Multi-Speaker</h1>
+    <div class="nav-bar">
+      <a href="#abstract">Abstract</a>
+      <a href="#pipeline">QA Pipeline</a>
+      <a href="#qa-statistics">QA Statistics</a>
+      <a href="#ability">Ability Stratification</a>
+        <a href="#model-performance">Model Performance</a>
+        <a href="#samples">Evaluation Samples</a>
+    </div>
+  </header>
+
+  <!-- Abstract Section -->
+  <section id="abstract" class="section">
+    <h2 class="section-title lang-zh hidden">摘要</h2>
+    <h2 class="section-title lang-en ">Abstract</h2>
+    <div class="lang-zh">
+        <p style='text-align: left;'><strong>口语理解（Spoken Language Understanding, SLU）</strong>已经从传统的单任务方法发展到大规模音频语言模型（LALM）解决方案。然而，大多数现有语音基准测试聚焦于单说话人或单一任务，忽视了现实中常见的多说话人对话所带来的挑战。我们提出了<strong>MSU-Bench</strong>，这是一个面向说话人设计的多说话人对话理解综合评测基准。</p> 
+        <p>我们的层级框架涵盖四个递进层级：<strong>单说话人静态属性理解</strong>、<strong>单说话人动态属性理解</strong>、<strong>多说话人背景理解</strong>，以及<strong>多说话人交互理解</strong>。该结构确保所有任务均基于以说话人为中心的语境，从基础感知到多说话人间的复杂推理。通过在 MSU-Bench 上评估当前最先进的模型，我们发现随着任务复杂度在不同层级中逐步上升，<strong>所有模型的性能均显著下降</strong>。我们还观察到开源模型与闭源商用模型之间持续存在能力差距，尤其在多说话人交互推理任务中表现明显。这些发现验证了 MSU-Bench 在评估和推动真实多说话人环境中对话理解方面的有效性。</p>        
+    </div>
+    <div class="lang-en">
+      <p style='text-align: left;'><strong>Spoken Language Understanding (SLU)</strong> has progressed from traditional single-task methods to large audio language model (LALM) solutions. Yet, most existing speech benchmarks focus on single-speaker or isolated tasks, overlooking the challenges posed by multi-speaker conversations that are common in real-world scenarios. We introduce <strong>MSU-Bench</strong>, a comprehensive benchmark for evaluating multi-speaker conversational understanding with a speaker-centric design. </p>
+      <p>Our hierarchical framework covers  four progressive tiers : <strong>single-speaker static attribute understanding</strong>, <strong>single-speaker dynamic attribute understanding</strong>, <strong>multi-speaker background understanding</strong>, and <strong>multi-speaker interaction understanding</strong>. This structure ensures all tasks are grounded in speaker-centric contexts, from basic perception to complex reasoning across multiple speakers. By evaluating state-of-the-art models on MSU-Bench, we demonstrate that as task complexity increases across the benchmark’s tiers, all models exhibit <strong>a significant performance decline</strong>. We also observe a persis tent capability gap between open-source models and closed-source commercial ones, particularly in multi-speaker interaction reasoning. These findings validate the effectiveness of MSU-Bench for assessing and advancing conversational understanding in realistic multi-speaker environments.</p>
+    </div>
+
+    <!-- 技术附录按钮 -->
+    <div style="text-align: center;">
+      <a class="appendix-button" href="MSU_Bench_Appendix.pdf" target="_blank">
+        📎 Supplementary Material for Submission （PDF）
+      </a>
+    </div>
+  </section>
+
+  <!-- QA Pipeline Section -->
+  <section id="pipeline" class="section">
+    <h2 class="section-title lang-zh hidden">问答流程</h2>
+    <h2 class="section-title lang-en ">QA Pipeline</h2>
+    <img src="images/pipeline_1.jpg" class="diagram" alt="QA Pipeline" />
+    <div class="lang-zh">
+        <p style='text-align: left;'>为了构建涵盖多种以说话人为中心的音频文本任务的四层基准测试集，我们构建了<strong>一个严格的问答生成流程（将完全开源）</strong>，该流程能够从涵盖多种真实场景与声学条件的多说话人对话中自动生成高质量的问答对。针对每项核心能力，我们设计了专门的提示，引导模板构建和问题设计，确保生成的问答样本与任务目标高度一致。</p>
+    </div>
+    <div class="lang-en">
+      <p style='text-align: left;'>To construct the four-tier benchmark with diverse speaker-centric audio-text tasks, we build <strong>a rigorous QA generation pipeline(will fully open-source)</strong> that automatically produces high-quality question–answer pairs from multi-speaker dialogues spanning various real-world scenarios and acoustic conditions. For each core ability, we design dedicated prompts to guide template construction and question formulation, ensuring that the resulting QA samples are tightly aligned with task-specific objectives.</p>
+    </div>
+  </section>
+
+  <!-- QA Statistics Section -->
+  <section id="qa-statistics" class="section">
+    <h2 class="section-title lang-zh hidden">QA 统计信息</h2>
+    <h2 class="section-title lang-en ">QA Statistics</h2>
+
+    <div class="section-box">
+    <!-- 插入图片 -->
+    <img src="images/count.png" alt="QA统计图" class="diagram">
+
+    <!-- 插入文本 -->
+    <div class="lang-zh hidden">
+        <p>我们采用<strong>多阶段质量控制流程</strong>，由大语言模型初步筛选，剔除低质量样本，为基准测试打下基础。对于推理复杂、易出错的问题，我们进行全面的<strong>审查与修正</strong>，确保评估准确性和基准完整性。最终筛选后，基准集包含<strong>25个任务，共1232个问题</strong>。</p>
+    </div>
+    <div class="lang-en ">
+        <p> We implement <strong>a multi-stage quality control process</strong> in which large language models perform initial filtering to eliminate substandard samples, establishing a foundation for benchmark quality. For reasoning-intensive questions, which are susceptible to annotation errors or involve complex inference processes, we conduct comprehensive <strong>review and correction</strong>  to ensure evaluation accuracy and maintain benchmark integrity.After the filtering and selection process, our final benchmark comprises <strong>25 tasks totaling 1232 questions</strong>.</p>
+    </div>
+    </div>
+    </section>
+
+  <!-- Ability Stratification Section -->
+  <section id="ability" class="section">
+    <h2 class="section-title lang-zh hidden">能力分层</h2>
+    <h2 class="section-title lang-en ">Ability Stratification</h2>
+    <img src="images/ability.jpg" class="diagram" alt="Ability Hierarchy" />
+    <div class="lang-zh hidden">
+        <p>我们的框架从<strong>说话人层面的感知</strong>逐步拓展到<strong>复杂的多方交互推理</strong>，遵循自然的认知层级：<strong>第一层</strong>识别说话人的静态属性，<strong>第二层</strong>分析单个说话人的时间变化，<strong>第三层</strong>推理多说话人间的上下文和背景，<strong>第四层</strong>实现对多说话人交互的全面理解。每一层都可独立评估，便于精准识别模型在多说话人理解任务中的优势与不足。</p>
+    </div>
+    <div class="lang-en">
+      <p>Our framework progresses from <strong>speaker-level perception</strong>  to<strong>complex multi-party interaction reasoning</strong> . The progression follows a natural cognitive hierarchy: <strong>Tier 1</strong>  establishes foundational recognition capabilities for static speaker attributes, <strong>Tier 2 </strong> extends to temporal dynamics analysis within individual speakers,<strong>Tier 3</strong>  advances to contextual inference and background understanding across multiple speakers, and<strong>Tier 4 </strong> culminates in comprehensive multi-speaker interaction un derstanding. Models can be assessed at each tier independently, enabling precise identification of strengths and limitations across the full spectrum of multi-speaker understanding tasks.</p>
+    </div>
+  </section>
+
+    
+    <!-- Model Performance Section -->
+    <section id="model-performance" class="section">
+        <h2 class="section-title lang-zh hidden">现有模型表现</h2>
+        <h2 class="section-title lang-en ">Model Performance</h2>
+    
+        <div class="section-box">
+        <!-- 插入图片 -->
+        <img src="images/performance.jpg" alt="模型表现图" class="diagram">
+    
+        <!-- 插入文本 -->
+        <div class="lang-zh">
+            <p>我们展示了多个<strong>主流开源模型</strong>和<strong>商业模型</strong>在基准测试上的全面评估结果。测试集从六种不同数据源中均衡抽样，覆盖广泛。<strong>25个任务的系统对比结果</strong>如上图所示，清晰展示了各模型的性能差异。</p>
+        </div>
+        <div class="lang-en hidden">
+            <p>We present comprehensive evaluation results of both <strong>state-of-the-art open-source</strong>  and <strong>commercial models</strong>  on our benchmark. The test set is carefully balanced, with samples drawn uniformly from six diverse data sources.<strong> The comparison of different systems across all 25 tasks </strong> is illustrated in above figure, providing a highly intuitive performance comparison across models.</p>
+        </div>
+        </div>
+    </section>
+
+  <!-- Evaluation Samples Section -->
+  <section id="samples" class="section">
+    <h2 class="section-title lang-zh hidden">评估样例</h2>
+    <h2 class="section-title lang-en ">Evaluation Samples</h2>
+    <div class="lang-zh">
+      <p>以下为模型在多说话人识别与推理上的问答样例。</p>
+    </div>
+    <div class="lang-en">
+      <p>The following are sample QAs evaluating speaker recognition and reasoning abilities.</p>
+    </div>
+
+    <!-- 插入你已有的 demo 区域 -->
+    <div id="audio-samples">
+        <div class="data-source-box source-phone lang-zh">
+            <h2>☎️ 电话语音数据</h2>
+            <p>本部分数据来自 <strong>magicdata-tel-cn</strong> 和 <strong>magicdata-tel-en</strong> 中文和英文语料，内容为双人电话通话，通话结构清晰，语速适中。</p>
+          </div>
+          
+          <!-- 英文版本 -->
+          <div class="data-source-box source-phone lang-en hidden">
+            <h2>☎️ Telephone Conversations</h2>
+            <p>This section contains audio from <strong>magicdata-tel-cn</strong> and <strong>magicdata-tel-en</strong> (both Chinese and English), consist of two-person telephone conversations with clear dialogue structure and moderate speaking rate.</p>
+          </div>
+            
+        <!-- magic data tel en 数据来源 -->
+        <div class="data-source">
+            <h2>📁 magicdata-tel-en </h2>
+            
+            <!-- 数据集简介 -->
+            <div class="dataset-description">
+                <div class="lang-zh">
+                <p><strong>简介：</strong>magicdata-tel-en 是一个包含双人电话对话的英文语音数据集，电话信道下的日常对话，具有重叠语音、多说话人交互等真实场景特点，适用于说话人识别、对话转录、情感分析等任务。</p>
+                </div>
+                <div class="lang-en hidden">
+                <p><strong>Description:</strong> magicdata-tel-en is an English speech dataset of two-speaker telephone conversations. It features real-world characteristics such as overlapping speech and interactive dialogue, making it suitable for speaker identification, transcription, and emotion analysis .</p>
+                </div>
+            </div>
+            
+            <!-- 音频 1 -->
+            <div class="audio-section" data-id="1">
+                <h3 class="audio-title lang-zh">音频 1</h3>
+                <h3 class="audio-title lang-en hidden">Audio 1</h3>
+            
+            <!-- 描述模块 -->
+            <div class="audio-description">
+                <!-- 中文描述 -->
+                <div class="description lang-zh">
+                <strong>音频描述：</strong> 会议场景下二人关于加班的讨论，发言人为二女，日常随意对话情感较为丰富，具有抢话、重叠行为发生。
+                </div>
+            
+                <!-- 英文描述 -->
+                <div class="description lang-en hidden">
+                <strong>Audio Description:</strong> A casual, emotionally rich conversation between two female speakers discussing overtime in a meeting setting, featuring interruptions and overlapping speech.
+                </div>
+            </div>
+        
+                <audio controls>
+                <source src="./audio/G202-3_1024_36_1104_02.wav" type="audio/wav">
+                Your browser does not support the audio element.
+                </audio>
+        
+                <div>
+                <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+                </div>
+            
+                <div class="section-container">
+                <!-- 中文 -->
+                <div class="language-column lang-zh">
+                    <h4>中文</h4>
+        
+                    <table id="qa1-zh" class="qa1-zh ">
+                    <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+                    <tr><td>音色分析</td><td>音频中第一个说话人语音*responsible for your action*的音高(pitch)听起来怎么样？从*shrill*, *nasal*, *deep*中选择</td><td>shrill。</td></tr>
+                    <tr><td>音色分析</td><td>音频中第一个说话人语音*responsible for your action*的音质(texture)听起来怎么样？从 *silky*, *husky*, *raspy*, *guttural*, *vocal-fry*中选择</td><td>silky。</td></tr>
+                    <tr><td>音色分析</td><td>音频中第一个说话人语音*responsible for your action*的音量(volume)听起来怎么样？从 *booming*, *authoritative*, *loud*, *hushed*, *soft*中选择"</td><td>loud。</td></tr>
+                    <tr><td>音色分析</td><td>音频中第一个说话人语音*responsible for your action*的清晰度(clarity)听起来怎么样？从 *crisp*, *slurred*, *lisp*, *stammering*中选择</td><td>crisp。</td></tr>
+                    <tr><td>语音流畅度分析</td><td>在表述*yeah its kind of weird just like, if if if it dose spark on a work day that they*时，第一个说话人有结巴吗？</td><td>有，第一个说话人在表述时出现了重复和停顿</td></tr>
+                    <tr><td>年龄段识别</td><td>第一个说话人他的年龄段是什么？</td><td>young adult。</td></tr>
+                    <tr><td>年龄段识别</td><td>会话中处于young adult年龄段的说话人有哪些？</td><td>第一个说话人和第二个说话人。</td></tr>
+                    <tr><td>性别识别</td><td>音频中第一个说话人是男性还是女性？</td><td>女性。</td></tr>
+                    <tr><td>说话人识别</td><td>谁说了“well, I feel like that, because I didnt always clear knowing that we have work on Saturday”？</td><td>第二个说话人</td></tr>
+                    <tr><td>说话人识别</td><td>音频中第1个说话人都说了哪些内容？</td><td>responsible for your action well, I feel like that, because I didnt always clear knowing that we have work on Saturday yeah so, but um, whatever. yup well, going to work is in whole another story</td></tr>
+                    <tr><td>情感识别</td><td>在表述“...and then after Im committed, then they tell me all these things I didnt know before”的时候，第一个说话人的情绪是什么？</td><td>Happiness</td></tr>
+                    <tr><td>情感演变</td><td>第二个说话人在对话中情绪变化是怎样的？结合具体句子回答</td><td>第二个说话人的情绪从最开始"responseible for your action"的Neutral，到" I didnt always clear knowing that we have work on Saturday"的Happiness，再到"yeah its kind of weird just like, if if ..."的Surprise，再到""well, going to work is in whole another story"的Happiness</td></tr>
+                    <tr><td>表达偏好识别</td><td>第一个说话人最可能是哪个年龄段？他使用了哪些年轻人常用表达/感兴趣的话题？</td><td>young adult，他在会话中讨论了刚加入工作时面临的加班问题，符合年轻人关注的话题</td></tr>
+                    <tr><td>观点变化识别</td><td>第2个说话人在对话中的前后关注点有变化吗，分别是什么？</td><td>第2个说话人最初关注*上级对工作要求的明确性*，后来转为讨论*对工作安排的不满*</td></tr>
+                    <tr><td>对话背景推理</td><td>本段对话更可能发生在正式办公场所还是日常生活场景？是正式、半正式还是随意交流？为什么？</td><td>日常生活场景，随意交流，两个说话人就加班问题进行了讨论，多用口语化表达，有较多语气词，并且情感丰富以Happiness为主，符合日常交流特点</td></tr>
+                    <tr><td>原因归因</td><td>第一个说话人在表达"I didnt always clear knowing that we have work on Saturday"时情绪与"yeah its kind of weird just like, if ..."有什么不同，是否与第一个说话人某句发言有关？</td><td>第一个说话人在"I didnt always clear knowing that we have work on Saturday"时情绪为Happiness，在"yeah its kind of weird just like, if ..."时情绪为Surprise，与第二个说话人抱怨"Im still a little upset they didnt, today"有关，带动了当前说话人的抱怨情绪</td></tr>
+                    <tr><td>对话背景推理</td><td>本段对话更可能发生在正式办公场所还是日常生活场景？是正式、半正式还是随意交流？为什么？</td><td>日常生活场景，随意交流，原因：对话内容涉及工作安排和情绪表达，但语言风格随意，包含口语化表达和情绪变化（如Happiness, Surprise），且用词不严谨，有较多停顿和重复</td></tr>
+                    <tr><td>说话人关系推理</td><td>朋友关系，原因：两人在讨论工作安排时情绪多样（Happiness, Surprise），语言风格随意，有打趣和共鸣（如*yeah whatever, its OK*），互动模式平等且亲密</td><td>根据语言风格和互动模式，第1个说话人和第2个说话人之间的关系是什么？从互动方式分析原因</td></tr>
+                  </table>
+                </div>
+            
+                <!-- English -->
+                <div class="language-column lang-en hidden">
+                    <h4>English</h4>
+        
+                    <table id="qa1-en" class="qa1-en">
+                    <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+                    <tr><td>Voice Quality Analysis</td><td>How does the pitch of the first speaker's voice in *responsible for your action* sound? Choose from *shrill*, *nasal*, *deep*</td><td>shrill.</td></tr>
+                    <tr><td>Voice Quality Analysis</td><td>How does the texture of the first speaker's voice in *responsible for your action* sound? Choose from *silky*, *husky*, *raspy*, *guttural*, *vocal-fry*</td><td>silky.</td></tr>
+                    <tr><td>Voice Quality Analysis</td><td>How does the volume of the first speaker's voice in *responsible for your action* sound? Choose from *booming*, *authoritative*, *loud*, *hushed*, *soft*</td><td>loud.</td></tr>
+                    <tr><td>Voice Quality Analysis</td><td>How does the clarity of the first speaker's voice in *responsible for your action* sound? Choose from *crisp*, *slurred*, *lisp*, *stammering*</td><td>crisp.</td></tr>
+                    <tr><td>Speech Flow Analysis</td><td>Did the first speaker stutter while saying *yeah its kind of weird just like, if if if it dose spark on a work day that they*?</td><td>Yes, the first speaker showed repetitions and pauses during the utterance.</td></tr>
+                    <tr><td>Age Recognition</td><td>What is the age group of the first speaker?</td><td>young adult.</td></tr>
+                    <tr><td>Age Recognition</td><td>Which speakers in the conversation are in the young adult age group?</td><td>The first and second speakers.</td></tr>
+                    <tr><td>Gender Recognition</td><td>Is the first speaker male or female?</td><td>Female.</td></tr>
+                    <tr><td>Speaker Recognition</td><td>Who said “well, I feel like that, because I didn’t always clear knowing that we have work on Saturday”?</td><td>The second speaker.</td></tr>
+                    <tr><td>Speaker Recognition</td><td>What did the first speaker say in the audio?</td><td>responsible for your action well, I feel like that, because I didn’t always clear knowing that we have work on Saturday yeah so, but um, whatever. yup well, going to work is in whole another story</td></tr>
+                    <tr><td>Emotion Recognition</td><td>What is the emotion of the first speaker when saying “...and then after I’m committed, then they tell me all these things I didn’t know before”?</td><td>Happiness</td></tr>
+                    <tr><td>Emotion Evolution</td><td>How did the second speaker’s emotions evolve during the conversation? Provide specific statements.</td><td>The second speaker’s emotions evolved from Neutral in "responsible for your action", to Happiness in "I didn’t always clear knowing that we have work on Saturday", to Surprise in "yeah it’s kind of weird just like, if if ...", and back to Happiness in "well, going to work is in whole another story".</td></tr>
+                    <tr><td>Expression Preference Recognition</td><td>What is the most likely age group of the first speaker? What youth-specific expressions or topics did they use?</td><td>young adult. The speaker discussed overtime issues faced when starting a new job, which aligns with common concerns of young adults.</td></tr>
+                    <tr><td>Opinion Change Recognition</td><td>Did the second speaker’s focus shift during the conversation? If so, what were the different focuses?</td><td>The second speaker initially focused on the clarity of superiors’ expectations, and later shifted to dissatisfaction with work arrangements.</td></tr>
+                    <tr><td>Dialogue Background</td><td>Is this dialogue more likely to occur in a formal office setting or a casual daily life context? Is the communication formal, semi-formal, or casual? Why?</td><td>Daily life context, casual communication. The conversation involves discussion about overtime, uses informal language with discourse markers, and expresses emotions mainly in Happiness, indicating a casual setting.</td></tr>
+                    <tr><td>Causal Attribution</td><td>How does the emotion in “I didn’t always clear knowing that we have work on Saturday” differ from that in “yeah it’s kind of weird just like, if ...”? Is it related to something the second speaker said?</td><td>The first speaker expresses Happiness in “I didn’t always clear...”, and Surprise in “yeah it’s kind of weird...”, likely triggered by the second speaker’s complaint “I’m still a little upset they didn’t, today.”</td></tr>
+                    <tr><td>Dialogue Background</td><td>Is this dialogue more likely to occur in a formal office setting or a casual daily life context? Is the communication formal, semi-formal, or casual? Why?</td><td>Daily life context, casual communication. Although it discusses work arrangements and emotions, the style is informal with spoken expressions and emotional shifts (e.g., Happiness, Surprise), and includes unstructured language with pauses and repetitions.</td></tr>
+                    <tr><td>Social Role Recognition</td><td>What is the relationship between the first and second speaker? Analyze based on interaction style.</td><td>Friends. Their diverse emotions (Happiness, Surprise), informal tone, mutual teasing, and equal, intimate interaction style suggest a friendly relationship.</td></tr>
+                    </table>
+                </div>
+                </div>
+            </div>
+            
+            <!-- 可以继续添加 Alimeeting 的音频 2、3 ... -->
+            <!-- 音频 2 -->
+            <div class="audio-section" data-id="2">
+                <h3 class="audio-title lang-zh">音频 2</h3>
+                <h3 class="audio-title lang-en hidden">Audio 2</h3>
+            
+                <!-- 描述模块 -->
+                <div class="audio-description">
+                    <!-- 中文描述 -->
+                    <div class="description lang-zh">
+                    <strong>音频描述：</strong> 日常场景下双人关于人际关系的讨论，发言人为二男(中年)，发音清晰噪声较少，有较多的轮次替换。
+                    </div>
+                
+                    <!-- 英文描述 -->
+                    <div class="description lang-en hidden">
+                    <strong>Audio Description:</strong> A two-male (middle-aged) conversation in a daily-life setting discussing interpersonal relationships, with clear speech, minimal noise, and frequent turn-taking.
+                    </div>
+                </div>
+            
+                <audio controls>
+                    <source src="./audio/G450-1_722_63_871_5.wav" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+            
+                <div>
+                    <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+                </div>
+            
+                <div class="section-container">
+                    <!-- 中文 -->
+                    <div class="language-column lang-zh">
+                    <h4>中文</h4>
+        
+                    <table id="qa1-zh" class="qa1-zh">
+                        <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+                        <tr><td>口音/方言识别</td><td>音频中第二个说话人带有什么口音？</td><td>第二个说话人带有北美口音。</td></tr>
+                        <tr><td>性别识别</td><td>音频中第二个说话人是男性还是女性？</td><td>第二个说话人是男性。</td></tr>
+                        <tr><td>年龄段识别</td><td>会话中处于adult年龄段的说话人有哪些？</td><td>会话中处于adult年龄段的说话人有第二个说话人和第一个说话人。</td></tr>
+                        <tr><td>音色分析</td><td>音频中第一个说话人语音"for for a lifetime, so I you know I could see worse where somebody ..."的音高(pitch)听起来怎么样？从*shrill*, *nasal*, *deep*中选择</td><td>第一个说话人语音的音高听起来是*nasal*。</td></tr>
+                        <tr><td>情感识别</td><td>音频中第一个说话人在表述"we dont know, even which lasts longer, a monogamous relationship ..."时的情绪是什么？</td><td>第一个说话人的情绪是*Sadness*。</td></tr>
+                        <tr><td>说话人计数</td><td>音频中哪位说话人发言最多？</td><td>第1个说话人。</td></tr>
+                        <tr><td>静音/重叠检测</td><td>第1个说话人在表述*we dont know, even which lasts longer, a monogamous relationship or an open relationship, I really we dont know, theres not a good day to own that*之后出现了抢话的情况吗？</td><td>是。</td></tr>
+                        <tr><td>情感演变</td><td>第1个说话人在对话中的情绪变化是怎样的？结合具体句子回答</td><td>第1个说话人在*we dont know, even which lasts longer, a monogamous relationship or an open relationship...*时情绪是*Sadness*，之后在*those lots of anecdotes, theres examples on both sides...*处变为*Neutral*。</td></tr>
+                        <tr><td>观点变化识别</td><td>第1个说话人在对话中的前后关注点有变化吗，分别是什么？</td><td>第1个说话人最初关注的是*relationship dynamics and their psychological impact*，后来转变为*the lack of scientific research on relationship satisfaction and its importance*。</td></tr>
+                        <tr><td>语言/口音文化推理</td><td>第二个说话人的口音是什么，这与他在会话中的观点有什么关系？</td><td>第二个说话人的口音是北美口音。他在对话中讨论了关于生活选择和关系模式的看法，这可能反映了北美文化中对个人自由和多样性的重视。</td></tr>
+                        <tr><td>表达偏好识别</td><td>第二个说话人最可能是哪个年龄段？他使用了哪些成人常用表达/感兴趣的话题？</td><td>第二个说话人最可能是成年人。他使用了*for a lifetime*和*part of our psychology right?*等表达，并讨论了生活选择和心理学相关的话题，这些都是成年人常见的兴趣点。</td></tr>
+                        <tr><td>动机推理</td><td>第2个说话人在表述*part of our psychology right? nothing kinda lasts forever*之后做出了什么行为，有无情绪或策略上的动因？</td><td>第2个说话人在表述*part of our psychology right? nothing kinda lasts forever*之后保持了一定时间的沉默，原因可能是他在等待第1个说话人的回应或是在思考如何继续对话。</td></tr>
+                        <tr><td>社交互动识别</td><td>第1个说话人在表述哪些话时表达接受或肯定拉近关系？</td><td>"第1个说话人在表述*yeah, relationship satisfaction is really really important to people*时表达肯定拉进关系。</td></tr>
+                        <tr><td>对话背景推理</td><td>本段对话更可能发生在正式办公场所还是日常生活场景？是正式、半正式还是随意交流？为什么？</td><td>日常生活场景，随意交流，原因：对话内容涉及个人关系和心理学讨论，语言风格口语化，情绪多样且有变化。</td></tr>
+                        <tr><td>说话人关系推理</td><td>根据语言风格和互动模式，第1个说话人和第2个说话人之间的关系是什么？从互动方式分析原因</td><td>朋友关系，原因：讨论内容涉及个人观点和心理学话题，互动中有情绪变化和自由表达。</td></tr>
+                        
+                      </table>
+                    </div>
+            
+                    <!-- English -->
+                    <div class="language-column lang-en hidden">
+                    <h4>English</h4>
+        
+                    <table id="qa1-en" class="qa1-en">
+                        <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+                        <tr><td>Accent/Dialect Recognition</td><td>What accent does the second speaker have in the audio?</td><td>The second speaker has a North American accent.</td></tr>
+                        <tr><td>Gender Recognition</td><td>Is the second speaker male or female in the audio?</td><td>The second speaker is male.</td></tr>
+                        <tr><td>Age Recognition</td><td>Which speakers in the conversation are in the adult age group?</td><td>Both the first and second speakers are in the adult age group.</td></tr>
+                        <tr><td>Voice Quality Analysis</td><td>How does the pitch of the first speaker’s voice in “for for a lifetime, so I you know I could see worse where somebody ...” sound? Choose from *shrill*, *nasal*, *deep*</td><td>The pitch sounds *nasal*.</td></tr>
+                        <tr><td>Emotion Recognition</td><td>What is the first speaker’s emotion when saying “we don’t know, even which lasts longer, a monogamous relationship ...”?</td><td>The first speaker’s emotion is *Sadness*.</td></tr>
+                        <tr><td>Speaker Counting</td><td>Which speaker speaks the most in the audio?</td><td>The first speaker.</td></tr>
+                        <tr><td>Silence/Overlap Detection</td><td>Does the first speaker get interrupted after saying *we don’t know, even which lasts longer, a monogamous relationship or an open relationship, I really we don’t know, there’s not a good day to own that*?</td><td>Yes.</td></tr>
+                        <tr><td>Emotion Evolution</td><td>How does the first speaker’s emotion evolve during the conversation? Provide specific sentences.</td><td>The first speaker expresses *Sadness* in *we don’t know, even which lasts longer, a monogamous relationship or an open relationship...*, then changes to *Neutral* in *those lots of anecdotes, there’s examples on both sides...*</td></tr>
+                        <tr><td>Opinion Change Recognition</td><td>Did the first speaker’s focus shift during the conversation? What were the different focuses?</td><td>The first speaker initially focused on *relationship dynamics and their psychological impact*, and later shifted to *the lack of scientific research on relationship satisfaction and its importance*.</td></tr>
+                        <tr><td>Language/Accent Cultural Reasoning</td><td>What is the second speaker’s accent, and how does it relate to their perspective in the conversation?</td><td>The second speaker has a North American accent. He discusses lifestyle choices and relationship models, which may reflect North American cultural values of personal freedom and diversity.</td></tr>
+                        <tr><td>Expression Preference Recognition</td><td>What is the most likely age group of the second speaker? What adult-specific expressions or topics does he use?</td><td>The second speaker is most likely an adult. He uses expressions like *for a lifetime* and *part of our psychology right?*, and discusses lifestyle and psychology topics common among adults.</td></tr>
+                        <tr><td>Motivation Reasoning</td><td>What did the second speaker do after saying *part of our psychology right? nothing kinda lasts forever*? Was there any emotional or strategic motivation?</td><td>The second speaker paused for a while, possibly waiting for the first speaker’s response or thinking about how to continue the conversation.</td></tr>
+                        <tr><td>Social Interaction Analysis</td><td>When did the first speaker express acceptance or agreement to build rapport?</td><td>The first speaker expressed agreement in *yeah, relationship satisfaction is really really important to people*.</td></tr>
+                        <tr><td>Dialogue Background</td><td>Is this conversation more likely to occur in a formal office setting or in daily life? Is it formal, semi-formal, or casual? Why?</td><td>Daily life setting, casual communication. The conversation involves personal relationships and psychology, with informal language and emotional variation.</td></tr>
+                        <tr><td>Social Role Recognition</td><td>Based on language style and interaction pattern, what is the relationship between the first and second speakers? Analyze the reason based on interaction.</td><td>They are friends. The conversation covers personal views and psychological topics with emotional changes and open expression.</td></tr>
+        
+                    </table>
+                    </div>
+                </div>
+                </div>
+        
+            <!-- 音频 3 -->
+            <div class="audio-section" data-id="2">
+                <h3 class="audio-title lang-zh">音频 3</h3>
+                <h3 class="audio-title lang-en hidden">Audio 3</h3>
+        
+            <!-- 描述模块 -->
+            <div class="audio-description">
+                <!-- 中文描述 -->
+                <div class="description lang-zh">
+                <strong>音频描述：</strong> 日常场景下二人关于自由主义的对话，发言人为二男(中年)，发音清晰，出现情绪变动，有抢话和观点对抗情况的发生。
+                </div>
+            
+                <!-- 英文描述 -->
+                <div class="description lang-en hidden">
+                <strong>Audio Description:</strong> A two-male (middle-aged) conversation in a daily-life setting discussing liberalism, featuring clear speech, emotional shifts, interruptions, and opposing viewpoints.
+                </div>
+            </div>
+        
+                <audio controls>
+                <source src="./audio/G451-2_657_36_833_9.wav" type="audio/wav">
+                Your browser does not support the audio element.
+                </audio>
+        
+                <div>
+                <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+                </div>
+        
+                <div class="section-container">
+                <!-- 中文 -->
+                <div class="language-column lang-zh">
+                    <h4>中文</h4>
+        
+                    <table id="qa1-zh" class="qa1-zh">
+                    <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+                    <tr><td>口音/方言识别</td><td>音频中第一个说话人带有什么口音？</td><td>第一个说话人带有北美口音。</td></tr>
+                    <tr><td>性别识别</td><td>音频中一共有几位男性说话？</td><td>音频中一共有两位男性说话人。</td></tr>
+                    <tr><td>年龄段识别</td><td>会话中处于adult年龄段的说话人有哪些？（young adult / adult / senior adult）</td><td>会话中处于adult年龄段的说话人有第一个说话人和第二个说话人。</td></tr>
+                    <tr><td>音色分析</td><td>音频中第一个说话人语音*but what work means you you prevent tourist attacks happening in the the in in that narrow narrow*的音高(pitch)听起来怎么样？从*shrill*, *nasal*, *deep*中选择</td><td>第一个说话人的音高听起来是*deep*。</td></tr>
+                    <tr><td>音色分析</td><td>音频中第一个说话人语音*but what work means you you prevent tourist attacks happening in the the in in that narrow narrow*的音质(texture)听起来怎么样？从 *silky*, *husky*, *raspy*, *guttural*, *vocal-fry*中选择</td><td>第一个说话人的音质听起来是*husky*。</td></tr>
+                    <tr><td>音色分析</td><td>音频中第一个说话人语音*but what work means you you prevent tourist attacks happening in the the in in that narrow narrow*的音量(volume)听起来怎么样？从 *booming*, *authoritative*, *loud*, *hushed*, *soft*中选择</td><td>第一个说话人的音量听起来是*authoritative*。</td></tr>
+                    <tr><td>音色分析</td><td>音频中第一个说话人语音*but what work means you you prevent tourist attacks happening in the the in in that narrow narrow*的清晰度(clarity)听起来怎么样？从 *crisp*, *slurred*, *lisp*, *stammering*中选择</td><td>第一个说话人的清晰度听起来是*crisp*和*stammering*。</td></tr>
+                    <tr><td>语音流畅度分析</td><td>在表述*well its its ah, Its ah its how many you prevent that would otherwise happened*时，第一个说话人有结巴吗？</td><td>是的，第一个说话人有结巴，表现为*Word Repetition*和*Interjection*。</td></tr>
+                    <tr><td>情感识别</td><td>在表述*You once said to me and Im sure youve said it to other people that I wouldnt be a libertarian if it worked*时，第二个说话人的情绪是什么？</td><td>第二个说话人的情绪是*Contempt*。</td></tr>
+                    <tr><td>说话人计数</td><td>音频中哪位说话人发言最多？</td><td>第一个说话人。</td></tr>
+                    <tr><td>静音/重叠检测</td><td>第一个说话人在表述*but what work means you you prevent tourist attacks happening in the the in in that narrow narrow*之后出现了抢话的情况吗？</td><td>是。</td></tr>
+                    <tr><td>音质演变</td><td>第一个说话人的音量(volume)是否从authoritative变更到booming？在哪句话中体现</td><td>第一个说话人在*well I look I I, I believe that ah, I believe that ah, ah, Its, You know that ah I I believe you can be both a a libertarian, ...*时音量是authoritative，之后在*I would say a, Its its easier to see with ah with with the benefit of hindsight but I think ah, ... *处变为booming。</td></tr>
+                    <tr><td>观点变化识别</td><td>第一个说话人在对话中的前后关注点有变化吗，分别是什么？</td><td>第一个说话人最初关注的是*prevent tourist attacks*，后来转变为讨论*libertarian principles and pragmatic ways*。</td></tr>
+                    <tr><td>语言/口音文化推理</td><td>第一个说话人的口音是什么，这与他在会话中的观点有什么关系？</td><td>第一个说话人的口音是北美口音。在对话中，他讨论了政府工作和自由意志主义的关系，这可能反映了北美文化中对个人自由和政府角色的复杂看法。北美文化中普遍存在对政府干预的怀疑态度，这与说话人提到的*libertarian*观点相吻合。</td></tr>
+                    <tr><td>地理位置判断</td><td>谁可能是北美地区的人？依据是什么？</td><td>第一个和第二个说话人都可能是北美地区的人。依据包括他们的北美口音，以及讨论的话题如政府政策、自由意志主义等，这些都是北美地区常见的政治讨论话题。此外，他们提到的*libertarian*概念在北美政治文化中尤为突出。</td></tr>
+                    <tr><td>原因归因</td><td>第1个说话人在表达*... You can still fight to work, to make it function better, and and and so theres suppose an outside and inside game*时与表达*... We have certain kinds of principles and then, and then act in and pragmatic ways and this isnt necessarily hypocrisy*时情绪分别是什么，是否与第2个说话人的某句发言有关？</td><td>第1个说话人在表达*... You can still fight to work, to make it function better, and and and so theres suppose an outside and inside game*时情绪为Neutral，在表达*... We have certain kinds of principles and then, and then act in and pragmatic ways and this isnt necessarily hypocrisy*时情绪为Contempt，与第2个说话人发言*You once said to me and Im sure youve said it to other people that I wouldnt be a libertarian if it worked... ?*有关，原因可能是第2个说话人的质疑引发了第1个说话人的不满情绪。</td></tr>
+                    <tr><td>群体意图推理</td><td>简要总结每位说话人对*自由主义理念*这一议题的态度及理由</td><td>第1个说话人对*自由主义理念*的观点是可以在政府内部工作以改善其运作，第2个说话人对*自由主义理念*的观点是质疑其在现实中的可行性。</td></tr>
+                    </table>
+                </div>
+        
+                <!-- English -->
+                <div class="language-column lang-en hidden">
+                    <h4>English</h4>
+        
+                    <table id="qa1-en" class="qa1-en">
+                    <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+                    <tr><td>Accent/Dialect Recognition</td><td>What accent does the first speaker have?</td><td>The first speaker has a North American accent.</td></tr>
+                    <tr><td>Gender Recognition</td><td>How many male speakers are there in the audio?</td><td>There are two male speakers in the audio.</td></tr>
+                    <tr><td>Age Recognition</td><td>Which speakers are in the adult age group? (young adult / adult / senior adult)</td><td>The first and second speakers are in the adult age group.</td></tr>
+                    <tr><td>Voice Quality Analysis</td><td>What is the pitch of the first speaker in the utterance *but what work means you you prevent tourist attacks happening in the the in in that narrow narrow*? Choose from *shrill*, *nasal*, *deep*</td><td>The pitch sounds *deep*.</td></tr>
+                    <tr><td>Voice Quality Analysis</td><td>What is the texture of the first speaker in the utterance *but what work means you you prevent tourist attacks happening in the the in in that narrow narrow*? Choose from *silky*, *husky*, *raspy*, *guttural*, *vocal-fry*</td><td>The texture sounds *husky*.</td></tr>
+                    <tr><td>Voice Quality Analysis</td><td>What is the volume of the first speaker in the utterance *but what work means you you prevent tourist attacks happening in the the in in that narrow narrow*? Choose from *booming*, *authoritative*, *loud*, *hushed*, *soft*</td><td>The volume sounds *authoritative*.</td></tr>
+                    <tr><td>Voice Quality Analysis</td><td>What is the clarity of the first speaker in the utterance *but what work means you you prevent tourist attacks happening in the the in in that narrow narrow*? Choose from *crisp*, *slurred*, *lisp*, *stammering*</td><td>The clarity sounds *crisp* and *stammering*.</td></tr>
+                    <tr><td>Speech Flow Analysis</td><td>Does the first speaker stutter in the utterance *well its its ah, Its ah its how many you prevent that would otherwise happened*?</td><td>Yes, the first speaker shows *Word Repetition* and *Interjection*.</td></tr>
+                    <tr><td>Emotion Recognition</td><td>What is the second speaker's emotion when saying *You once said to me and I’m sure you’ve said it to other people that I wouldn’t be a libertarian if it worked*?</td><td>The emotion is *Contempt*.</td></tr>
+                    <tr><td>Speaker Counting</td><td>Which speaker talks the most in the audio?</td><td>The first speaker.</td></tr>
+                    <tr><td>Silence/Overlap Detection</td><td>Did an interruption occur after the first speaker said *but what work means you you prevent tourist attacks happening in the the in in that narrow narrow*?</td><td>Yes.</td></tr>
+                    <tr><td>Voice Quality Evolution</td><td>Did the first speaker’s volume change from *authoritative* to *booming*? In which utterance?</td><td>Yes. It was *authoritative* during *well I look I I, I believe that ah, I believe that ah, ah, It’s, You know that ah I I believe you can be both a a libertarian, ...*, and changed to *booming* during *I would say a, It’s it’s easier to see with ah with with the benefit of hindsight but I think ah, ...*.</td></tr>
+                    <tr><td>Opinion Change Recognition</td><td>Did the first speaker shift focus during the conversation? What were the focuses?</td><td>The first speaker initially focused on *preventing tourist attacks*, then shifted to *libertarian principles and pragmatic ways*.</td></tr>
+                    <tr><td>Language/Accent Cultural Reasoning</td><td>What is the first speaker’s accent, and how is it related to their viewpoint?</td><td>The first speaker has a North American accent. He discusses the relationship between government work and libertarianism, reflecting North American cultural tensions between personal freedom and government intervention.</td></tr>
+                    <tr><td>Geographical Location Estimation</td><td>Who is likely from North America? What is the evidence?</td><td>Both speakers are likely from North America. Evidence includes their North American accent and topics like government policy and libertarianism, which are common in North American discourse.</td></tr>
+                    <tr><td>Causal Attribution</td><td>What are the emotions of the first speaker when saying *... You can still fight to work, to make it function better, and and and so there’s suppose an outside and inside game* and *... We have certain kinds of principles and then, and then act in and pragmatic ways and this isn’t necessarily hypocrisy*, and are they related to a statement from speaker 2?</td><td>The first speaker is *Neutral* in the first statement, and *Contempt* in the second. The emotion shift may relate to speaker 2’s earlier statement *You once said to me and I’m sure you’ve said it to other people that I wouldn’t be a libertarian if it worked...*, which could have triggered dissatisfaction.</td></tr>
+                    <tr><td>Motivation Reasoning</td><td>Briefly summarize each speaker’s stance on *libertarian ideals* and their reasoning.</td><td>The first speaker believes in working within government to improve it; the second speaker questions the practicality of libertarian ideals in reality.</td></tr>
+        
+                    </table>
+                </div>
+                </div>
+            </div>
+                
+            </div>
+        
+        <!-- magic data tel cn 数据来源 -->
+        <div class="data-source">
+          <h2>📁 magic data tel cn</h2>
+        
+          <!-- 数据集简介 -->
+          <div class="dataset-description">
+          <div class="lang-zh">
+              <p><strong>简介：</strong>magicdata-tel-cn 是一个包含双人电话对话的中文语音数据集，电话信道下的日常对话，具有重叠语音、多说话人交互等真实场景特点，适用于说话人识别、对话转录、情感分析等任务。</p>
+              </div>
+              <div class="lang-en hidden">
+              <p><strong>Description:</strong> magicdata-tel-cn is a Chinese speech dataset containing two-speaker telephone conversations. It features real-world scenarios such as overlapping speech and multi-speaker interactions under telephone channel conditions, and is suitable for tasks like Speaker Recognition, Dialogue Transcription, and Emotion Recognition.</p>
+              </div>
+          </div>
+        
+          <!-- 音频 1 -->
+          <div class="audio-section" data-id="1">
+            <h3 class="audio-title lang-zh">音频 1</h3>
+            <h3 class="audio-title lang-en hidden">Audio 1</h3>
+        
+          <!-- 描述模块 -->
+          <div class="audio-description">
+              <!-- 中文描述 -->
+              <div class="description lang-zh">
+              <strong>音频描述：</strong> 日常场景下双人关于NBA球星的对话，发言人为二男，发音清晰略有信道噪声。
+              </div>
+          
+              <!-- 英文描述 -->
+              <div class="description lang-en hidden">
+              <strong>Audio Description:</strong> A two-male-speaker conversation about NBA Stars in a daily-life setting, with clear pronunciation and slight channel noise.
+              </div>
+          </div>
+        
+            <audio controls>
+              <source src="./audio/A6135_3_197_13_280_14.wav" type="audio/wav">
+              Your browser does not support the audio element.
+            </audio>
+        
+            <div>
+              <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+            </div>
+        
+            <div class="section-container">
+              <!-- 中文 -->
+              <div class="language-column lang-zh">
+                <h4>中文</h4>
+        
+                <table id="qa1-zh" class="qa1-zh">
+                  <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+                  <tr><td>口音/方言识别</td><td>音频中第一个说话人带有什么口音？</td><td>第一个说话人带有东亚口音</td></tr>
+                  <tr><td>性别识别</td><td>音频中一共有几位男性说话？"</td><td>音频中有两位男性说话人</td></tr>
+                  <tr><td>年龄段识别</td><td>会话中处于young adult年龄段的说话人有哪些？</td><td>第一个说话人和第二个说话人都是young adult年龄段</td></tr>
+                  <tr><td>音色分析</td><td>音频中第一个说话人语音*啊呃还有不是凌凌晨四点，那个啥*的音高(pitch)听起来怎么样？从*shrill*, *nasal*, *deep*中选择</td><td>第一个说话人语音的音高是*nasal*</td></tr>
+                  <tr><td>语音流畅度分析</td><td>在表述*哦凌晨四点的洛杉矶, 他不是还有一次比赛是打，一个人一个人投了多少，四十多分的球*时，第一个说话人有结巴吗？</td><td>第一个说话人在表述时有结巴，具体表现为*Block*, *Sound Repetition*</td></tr>
+                  <tr><td>情感识别</td><td>在表述*就在那时候，他俩的关系就僵持了*时，第二个说话人的情绪是什么？</td><td>第二个说话人的情绪是*Sadness*</td></tr>
+                  <tr><td>说话人识别</td><td>音频中说*你见过凌晨四点的洛杉矶吗*的说话人在音频中都说了哪些内容？</td><td>*你见过凌晨四点的洛杉矶吗* *对他在，他在八号位，在湖人的时候，跟，湖人的, 呃大鲨鱼, 发生过一些舆论，对奥尼尔* *因为有一场比赛，嗯人湖人得到总冠军，有场比赛就说, 是奥尼尔带领湖人队，赢得了总冠军，然后还有人说是科比带领湖人队，赢得了总冠军* *就在那时候，他俩的关系就僵持了* *也和解了，也和解了*</td></tr>
+                  <tr><td>音质演变</td><td>第一个说话人的音高(pitch)是否从nasal变更到deep？在哪句话中体现？</td><td>第一个说话人在*啊呃还有不是凌凌晨四点，那个啥*时音高是nasal，之后在*哦凌晨四点的洛杉矶, 他不是还有一次比赛是打，一个人一个人投了多少，四十多分的球*处变为deep</td></tr>
+                  <tr><td>表达偏好识别</td><td>第一个说话人和第二个说话人最可能是哪个年龄段？他们使用了哪些年轻成人常用表达/感兴趣的话题？</td><td>第一个说话人和第二个说话人都是年轻成人。他们讨论的话题包括篮球比赛、球员关系等，这些都是年轻成人常见的兴趣话题。他们的表达方式也较为随意，使用了*啊呃*、*嗯*等口语化表达，符合年轻成人的语言习惯。</td></tr>
+                </table>
+              </div>
+        
+              <!-- English -->
+              <div class="language-column lang-en hidden">
+                <h4>English</h4>
+        
+                <table id="qa1-en" class="qa1-en">
+                  <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+                  <tr><td>Accent/Dialect Recognition</td><td>What accent does the first speaker have in the audio?</td><td>The first speaker has an East Asian accent.</td></tr>
+                  <tr><td>Gender Recognition</td><td>How many male speakers are in the audio?</td><td>There are two male speakers in the audio.</td></tr>
+                  <tr><td>Age Recognition</td><td>Which speakers in the conversation are in the young adult age group?</td><td>Both the first and second speakers are young adults.</td></tr>
+                  <tr><td>Voice Quality Analysis</td><td>What is the pitch of the first speaker’s utterance *啊呃还有不是凌凌晨四点，那个啥*? Choose from *shrill*, *nasal*, *deep*.</td><td>The pitch is *nasal*.</td></tr>
+                  <tr><td>Speech Flow Analysis</td><td>Does the first speaker stutter while saying *哦凌晨四点的洛杉矶, 他不是还有一次比赛是打，一个人一个人投了多少，四十多分的球*?</td><td>Yes, the first speaker shows signs of *Block* and *Sound Repetition*.</td></tr>
+                  <tr><td>Emotion Recognition</td><td>What is the emotion of the second speaker while saying *就在那时候，他俩的关系就僵持了*?</td><td>The emotion is *Sadness*.</td></tr>
+                  <tr><td>Speaker Recognition</td><td>What other utterances did the speaker who said *你见过凌晨四点的洛杉矶吗* say in the audio?</td><td>*你见过凌晨四点的洛杉矶吗* *对他在，他在八号位，在湖人的时候，跟，湖人的, 呃大鲨鱼, 发生过一些舆论，对奥尼尔* *因为有一场比赛，嗯人湖人得到总冠军，有场比赛就说, 是奥尼尔带领湖人队，赢得了总冠军，然后还有人说是科比带领湖人队，赢得了总冠军* *就在那时候，他俩的关系就僵持了* *也和解了，也和解了*</td></tr>
+                  <tr><td>Voice Quality Evolution</td><td>Did the pitch of the first speaker change from nasal to deep? In which utterance did it change?</td><td>The pitch was *nasal* in *啊呃还有不是凌凌晨四点，那个啥*, and changed to *deep* in *哦凌晨四点的洛杉矶, 他不是还有一次比赛是打，一个人一个人投了多少，四十多分的球*.</td></tr>
+                  <tr><td>Expression Preference Recognition</td><td>What is the most likely age group of the first and second speakers? What expressions or topics typical of young adults did they use?</td><td>Both speakers are likely young adults. They discussed basketball games and player relationships—topics common among young adults—and used informal expressions like *啊呃* and *嗯*, which align with young adult speech habits.</td></tr>
+        
+                </table>
+              </div>
+            </div>
+          </div>
+        
+          <!-- 音频 2 -->
+          <div class="audio-section" data-id="2">
+              <h3 class="audio-title lang-zh">音频 2</h3>
+              <h3 class="audio-title lang-en hidden">Audio 2</h3>
+          
+            <!-- 描述模块 -->
+            <div class="audio-description">
+                <!-- 中文描述 -->
+                <div class="description lang-zh">
+                <strong>音频描述：</strong> 日常场景下双人关于创业的对话，发言人为一女一男，副语言信息丰富，说话人发音清晰，有部分信道噪声。
+                </div>
+            
+                <!-- 英文描述 -->
+                <div class="description lang-en hidden">
+                <strong>Audio Description:</strong> A male-female conversation about entrepreneurship in a daily-life setting, with clear pronunciation, rich paralinguistic information, and some channel noise.
+                </div>
+            </div>
+        
+              <audio controls>
+                <source src="./audio/A7222_3_684_68_784_98.wav" type="audio/wav">
+                Your browser does not support the audio element.
+              </audio>
+        
+              <div>
+                <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+              </div>
+          
+              <div class="section-container">
+                <!-- 中文 -->
+                <div class="language-column lang-zh">
+                  <h4>中文</h4>
+        
+                  <table id="qa1-zh" class="qa1-zh">
+                    <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+                    <tr><td>性别识别</td><td>音频中第一个说话人是男性还是女性？</td><td>女性</td></tr>
+                    <tr><td>性别识别</td><td>音频中第二个说话人是男性还是女性？</td><td>男性</td></tr>
+                    <tr><td>年龄段识别</td><td>第二个说话人他的年龄段是什么？</td><td>young adult</td></tr>
+                    <tr><td>音色分析</td><td>音频中第二个说话人语音*因为，我在南京那边上学，然后他, 那边的店铺的租金很贵，大概, 一万八一个月然后你是不是就必须至少要租半年*的音质(texture)听起来怎么样？从 *silky*, *husky*, *raspy*, *guttural*, *vocal-fry*中选择</td><td>第二个说话人的音质听起来是 husky 和 raspy</td></tr>
+                    <tr><td>语音流畅度分析</td><td>在表述*她这个就是那叫自己那叫自己创业了*时，第一个说话人有结巴吗？</td><td>是的，第一个说话人有结巴</td></tr>
+                    <tr><td>情感识别</td><td>在表述*你现在创业成功了吗？*时，第二个说话人的情绪是什么？</td><td>第二个说话人的情绪是开心</td></tr>
+                    <tr><td>语言/口音文化推理</td><td>第二个说话人的口音是什么，这与他在会话中的观点有什么关系？</td><td>第二个说话人的口音是东亚口音，他在对话中提到在南京上学，并讨论了南京店铺租金昂贵的问题。这与东亚地区尤其是中国大城市高租金的文化背景相关，反映了该地区商业成本高的现实情况。</td></tr>
+                    <tr><td>表达偏好识别</td><td>第一个说话人最可能是哪个年龄段？这个年龄段有什么常用表达/感兴趣的话题？</td><td>第一个说话人是年轻成人，她使用了*直播啊*、*微商*等年轻成人常用的表达和话题，这些词汇和话题反映了年轻一代对新兴职业和创业方式的兴趣。</td></tr>
+                  </table>
+                </div>
+          
+                <!-- English -->
+                <div class="language-column lang-en hidden">
+                  <h4>English</h4>
+        
+                  <table id="qa1-en" class="qa1-en">
+                    <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+                    <tr><td>Gender Recognition</td><td>Is the first speaker in the audio male or female?</td><td>Female</td></tr>
+                    <tr><td>Gender Recognition</td><td>Is the second speaker in the audio male or female?</td><td>Male</td></tr>
+                    <tr><td>Age Recognition</td><td>What is the age group of the second speaker?</td><td>Young adult</td></tr>
+                    <tr><td>Voice Quality Analysis</td><td>How does the texture of the second speaker’s voice sound when saying *因为，我在南京那边上学，然后他, 那边的店铺的租金很贵，大概, 一万八一个月然后你是不是就必须至少要租半年*? Choose from *silky*, *husky*, *raspy*, *guttural*, *vocal-fry*</td><td>The second speaker's voice texture sounds *husky* and *raspy*</td></tr>
+                    <tr><td>Speech Flow Analysis</td><td>Did the first speaker stutter when saying *她这个就是那叫自己那叫自己创业了*?</td><td>Yes, the first speaker stuttered</td></tr>
+                    <tr><td>Emotion Recognition</td><td>What is the emotion of the second speaker when saying *你现在创业成功了吗？*?</td><td>The second speaker expresses *Happiness*</td></tr>
+                    <tr><td>Language/Accent Cultural Reasoning</td><td>What is the accent of the second speaker, and how does it relate to his opinion in the conversation?</td><td>The second speaker has an East Asian accent. He mentions studying in Nanjing and discusses the high rent of shops there, which relates to the cultural context of high business costs in East Asian cities, especially in China.</td></tr>
+                    <tr><td>Expression Preference Recognition</td><td>What is the most likely age group of the first speaker? What expressions or topics are common for this group?</td><td>The first speaker is a young adult. She uses expressions like *直播啊* and *微商*, which are popular among young adults and reflect their interest in emerging careers and entrepreneurial trends.</td></tr>
+        
+                  </table>
+                </div>
+              </div>
+            </div>
+        
+          <!-- 音频 3 -->
+          <div class="audio-section" data-id="2">
+              <h3 class="audio-title lang-zh">音频 3</h3>
+              <h3 class="audio-title lang-en hidden">Audio 3</h3>
+          
+            <!-- 描述模块 -->
+            <div class="audio-description">
+                <!-- 中文描述 -->
+                <div class="description lang-zh">
+                <strong>音频描述：</strong> 日常场景下双人关于家庭的对话，发言人为一男一女，二人有明显情感/音高/音量变化，发音清晰，有部分信道噪声。
+                </div>
+            
+                <!-- 英文描述 -->
+                <div class="description lang-en hidden">
+                <strong>Audio Description:</strong> A two-speaker conversation about family in a daily-life setting, featuring one male and one female speaker. Both speakers exhibit noticeable changes in emotion, pitch, and volume. The speech is clear, with some channel noise prese.
+                </div>
+            </div>
+        
+              <audio controls>
+                <source src="./audio/A7215_3_571_96_645_85.wav" type="audio/wav">
+                Your browser does not support the audio element.
+              </audio>
+        
+              <div>
+                <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+              </div>
+          
+              <div class="section-container">
+                <!-- 中文 -->
+                <div class="language-column lang-zh">
+                  <h4>中文</h4>
+        
+                  <table id="qa1-zh" class="qa1-zh">
+                    <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+                    <tr><td>性别识别</td><td>音频中一共有几位女性说话？</td><td>音频中一共有1位女性说话人。</td></tr>
+                    <tr><td>原因归因</td><td>会话中处于adult年龄段的说话人有哪些？</td><td>第二个说话人处于adult年龄段。</td></tr>
+                    <tr><td>语音流畅度分析</td><td>在表述*家里人还行嗯都挺好的，就是就是除了我自己在外边儿。*时，第二个说话人有结巴吗？</td><td>有，第二个说话人在这段话中出现了Word Repetition和Interjection</td></tr>
+                    <tr><td>情感识别</td><td>在表述*那挺好的呀。*时，第一个说话人的情绪是什么？</td><td>第一个说话人的情绪是Happiness。</td></tr>
+                    <tr><td>情感识别</td><td>在表述*哎呀，那怎么办呢是吧？*时，第二个说话人的情绪是什么？</td><td>第二个说话人的情绪是Sadness 。</td></tr>
+                    <tr><td>说话人识别</td><td>音频中说*老顾客，老有人顾客也行。*的说话人在音频中都说了哪些内容？</td><td>老顾客，老有人顾客也行。 那挺好的呀。 哎。 最近家里怎么样？家里人都挺好的吧？没什么事儿吧？ 我奶奶最近呢身体也不太好。 然后每天的的早饭中午饭什么都是我给我奶奶做。 人老了就身体都不太好了。 嗯我姑姑也说要回来，我姑也说回来帮帮着照顾照顾我奶奶什么的。 或者不在不在那个。 市里了。</td></tr>
+                    <tr><td>说话人计数</td><td>这段音频中一共出现了多少个不同的说话人？</td><td>2</td></tr>
+                    <tr><td>情感演变</td><td>第二个说话人在对话中的情绪变化是怎样的？结合具体句子回答</td><td>第二个说话人在*对老顾客老顾客就慢慢就。*时情绪是Sadness，之后在*家里人还行嗯都挺好的*处变为Happiness</td></tr>
+                    <tr><td>观点变化识别</td><td>第二个说话人在对话中的前后关注点有变化吗，分别是什么？</td><td>第二个说话人最初关注的是与老顾客的关系，后来转向谈论家庭状况和个人处境</td></tr>
+                  </table>
+                </div>
+          
+                <!-- English -->
+                <div class="language-column lang-en hidden">
+                  <h4>English</h4>
+        
+                  <table id="qa1-en" class="qa1-en">
+                    <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+                    <tr><td>Gender Recognition</td><td>How many female speakers are in the audio?</td><td>There is 1 female speaker in the audio.</td></tr>
+                    <tr><td>Causal Attribution</td><td>Which speakers in the conversation are in the adult age group?</td><td>The second speaker is in the adult age group.</td></tr>
+                    <tr><td>Speech Flow Analysis</td><td>Did the second speaker stutter when saying *家里人还行嗯都挺好的，就是就是除了我自己在外边儿。*?</td><td>Yes, the second speaker showed Word Repetition and Interjection.</td></tr>
+                    <tr><td>Emotion Recognition</td><td>What was the first speaker’s emotion when saying *那挺好的呀。*?</td><td>The first speaker’s emotion was Happiness.</td></tr>
+                    <tr><td>Emotion Recognition</td><td>What was the second speaker’s emotion when saying *哎呀，那怎么办呢是吧？*?</td><td>The second speaker’s emotion was Sadness.</td></tr>
+                    <tr><td>Speaker Recognition</td><td>What other content did the speaker who said *老顾客，老有人顾客也行。* say in the audio?</td><td>*老顾客，老有人顾客也行。* *那挺好的呀。* *哎。* *最近家里怎么样？家里人都挺好的吧？没什么事儿吧？* *我奶奶最近呢身体也不太好。* *然后每天的的早饭中午饭什么都是我给我奶奶做。* *人老了就身体都不太好了。* *嗯我姑姑也说要回来，我姑也说回来帮帮着照顾照顾我奶奶什么的。* *或者不在不在那个。 市里了。*</td></tr>
+                    <tr><td>Speaker Counting</td><td>How many different speakers are in the audio?</td><td>2</td></tr>
+                    <tr><td>Emotion Evolution</td><td>How did the second speaker’s emotion change during the conversation? Provide specific sentences.</td><td>The second speaker expressed Sadness in *对老顾客老顾客就慢慢就。*, and then shifted to Happiness in *家里人还行嗯都挺好的*.</td></tr>
+                    <tr><td>Opinion Change Recognition</td><td>Did the second speaker’s focus change during the conversation? What were the topics?</td><td>The second speaker initially focused on relationships with regular customers, then shifted to discussing family situation and personal circumstances.</td></tr>
+        
+                  </table>
+                </div>
+              </div>
+            </div>
+      
+            <div class="data-source-box source-meeting lang-zh">
+                <h2>🧑‍💼 多人会议数据</h2>
+                <p>音频来自 <strong>AliMeeting</strong> 和 <strong>CHiME6</strong> 数据集，包含自然多说话人会议场景，发言有重叠、静音、打断等复杂现象。</p>
+                </div>
+                
+                <div class="data-source-box source-meeting lang-en hidden">
+                <h2>🧑‍💼 Multi-party Meeting Conversations</h2>
+                <p>Audio is sourced from the <strong>AliMeeting</strong> and <strong>CHiME6</strong> dataset, covering realistic meeting-style conversations with overlapping speech, silence, and interruptions.</p>
+                </div>
+                
+                <!-- chime 数据来源 -->
+                <div class="data-source">
+                    <h2>📁 CHiME6 </h2>
+                    
+                    <!-- 数据集简介 -->
+                    <div class="dataset-description">
+                        <div class="lang-zh">
+                        <p><strong>简介：</strong>CHiME6 是一个包含多人会议对话的英文语音数据集，语音采集于远场麦克风，具有重叠语音、多说话人交互等真实场景特点，适用于说话人识别、对话转录、情感分析等任务。</p>
+                        </div>
+                        <div class="lang-en hidden">
+                        <p><strong>Description:</strong> CHiME6 is a English speech dataset featuring multi-speaker meeting conversations recorded with far-field microphones. It captures real-world challenges like overlapping speech and spontaneous interaction, suitable for tasks such as speaker identification, transcription, and emotion recognition.</p>
+                        </div>
+                    </div>
+                  
+                    <!-- 音频 1 -->
+                    <div class="audio-section" data-id="1">
+                      <h3 class="audio-title lang-zh">音频 1</h3>
+                      <h3 class="audio-title lang-en hidden">Audio 1</h3>
+                  
+                    <!-- 描述模块 -->
+                    <div class="audio-description">
+                        <!-- 中文描述 -->
+                        <div class="description lang-zh">
+                        <strong>音频描述：</strong> 会议场景下三人关于乘坐飞机的讨论，发言人为三男，发音清晰噪声较少，具有抢话行为发生。
+                        </div>
+                    
+                        <!-- 英文描述 -->
+                        <div class="description lang-en hidden">
+                        <strong>Audio Description:</strong> A three-male-speaker discussion about air travel in a meeting setting, with clear speech, minimal noise, and instances of overlap.
+                        </div>
+                    </div>
+                
+                      <audio controls>
+                        <source src="./audio/S03_4226_48_4284_44.wav" type="audio/wav">
+                        Your browser does not support the audio element.
+                      </audio>
+                
+                      <div>
+                        <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+                      </div>
+                  
+                      <div class="section-container">
+                        <!-- 中文 -->
+                        <div class="language-column lang-zh">
+                          <h4>中文</h4>
+                
+                          <table id="qa1-zh" class="qa1-zh">
+                            <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+                            <tr><td>性别识别</td><td>音频中一共有几位男性说话？</td><td>音频中有四位男性说话人</td></tr>
+                            <tr><td>年龄段识别</td><td>会话中处于young adult年龄段的说话人有哪些？（young adult / adult / senior adult）</td><td>会话中处于young adult年龄段的说话人有第一个说话人、第二个说话人、第三个说话人和第四个说话</td></tr>
+                            <tr><td>音色分析</td><td>音频中第一个说话人语音*Its a little salty but its not salty enough.*的音高(pitch)听起来怎么样？从*shrill*, *nasal*, *deep*中选择</td><td>deep</td></tr>
+                            <tr><td>音色分析</td><td>音频中第一个说话人语音*Its a little salty but its not salty enough.*的音量(volume)听起来怎么样？从 *booming*, *authoritative*, *loud*, *hushed*, *soft*中选择</td><td>authoritative</td></tr>
+                            <tr><td>语音流畅度分析</td><td>在表述*What what do you think the odds of them rejecting me are? At the airport.*时，第二个说话人有停顿/重复吗？</td><td>有停顿和重复</td></tr>
+                            <tr><td>情感识别</td><td>在表述*What the heck, its my name though.*时，第二个说话人的情绪是什么？</td><td>Surprise</td></tr>
+                            <tr><td>音质演变</td><td>第4个说话人的音量(volume)是否从*booming*变更到*authoritative*？在哪句话中体现？</td><td>第4个说话人在*Unless someones having like a really bad day they shouldnt care.*时音量是*booming*，之后在*Just say this is my legal name and then just fight it.*处变为*authoritative*</td></tr>
+                            <tr><td>原因归因</td><td>第4个说话人在表达*God damn.*时与表达*What the heck, its my name though.*时情绪分别是什么，是否与第3个说话人的某句发言有关？</td><td>第4个说话人在表达*God damn.*的时候情绪为Neutral，在表达*What the heck, its my name though.*时情绪变为Surprise，与第3个说话人发言*Cuz they dont like changes and whenever you do a change its like a fifty dollar fee or something.*有关，原因可能是第3个说话人的发言引发了第4个说话人的惊讶反应。</td></tr>
+                            <tr><td>说话人关系推理</td><td>根据语言风格和互动模式，第2个说话人和第3个说话人之间的关系是什么？从互动方式分析原因</td><td>朋友关系，原因：对话中两人讨论个人旅行问题，语言风格随意，情绪表达自然，有打断和附和，如*Yeah*和*Not high*的互动，显示出平等和熟悉的交流模式。</td></tr>
+                          </table>
+                        </div>
+                  
+                        <!-- English -->
+                        <div class="language-column lang-en hidden">
+                          <h4>English</h4>
+                
+                          <table id="qa1-en" class="qa1-en">
+                            <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+                            <tr><td>Gender Recognition</td><td>How many male speakers are there in the audio?</td><td>There are four male speakers in the audio.</td></tr>
+                            <tr><td>Age Group Recognition</td><td>Which speakers are in the young adult age group? (young adult / adult / senior adult)</td><td>The first, second, third, and fourth speakers are in the young adult age group.</td></tr>
+                            <tr><td>Voice Quality Analysis</td><td>What is the pitch of the first speaker’s voice in *Its a little salty but its not salty enough.*? Choose from *shrill*, *nasal*, *deep*</td><td>deep</td></tr>
+                            <tr><td>Voice Quality Analysis</td><td>What is the volume of the first speaker’s voice in *Its a little salty but its not salty enough.*? Choose from *booming*, *authoritative*, *loud*, *hushed*, *soft*</td><td>authoritative</td></tr>
+                            <tr><td>Fluency Analysis</td><td>Does the second speaker pause or repeat when saying *What what do you think the odds of them rejecting me are? At the airport.*?</td><td>Yes, there are pauses and repetitions.</td></tr>
+                            <tr><td>Emotion Recognition</td><td>What is the emotion of the second speaker in *What the heck, it's my name though.*?</td><td>Surprise</td></tr>
+                            <tr><td>Voice Quality Shift</td><td>Does the fourth speaker's volume shift from *booming* to *authoritative*? In which sentences does this occur?</td><td>The fourth speaker’s volume is *booming* in *Unless someone's having like a really bad day they shouldn't care.*, and shifts to *authoritative* in *Just say this is my legal name and then just fight it.*</td></tr>
+                            <tr><td>Cause Attribution</td><td>What are the emotions of the fourth speaker in *God damn.* and *What the heck, it's my name though.*? Are they related to any utterance by the third speaker?</td><td>The emotion in *God damn.* is Neutral, while in *What the heck, it's my name though.* it is Surprise. This change is likely triggered by the third speaker’s remark *Cuz they don't like changes and whenever you do a change it's like a fifty dollar fee or something.*</td></tr>
+                            <tr><td>Speaker Relationship Reasoning</td><td>What is the relationship between the second and third speakers based on their speaking style and interaction? Provide reasoning.</td><td>They are friends. This is inferred from their casual discussion about travel, natural emotional expression, and informal interaction patterns such as interruptions and affirmations like *Yeah* and *Not high*, indicating an equal and familiar dynamic.</td></tr>
+                
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  
+                    <!-- 可以继续添加 chime 的音频 2、3 ... -->
+                    <!-- 音频 2 -->
+                    <div class="audio-section" data-id="2">
+                        <h3 class="audio-title lang-zh">音频 2</h3>
+                        <h3 class="audio-title lang-en hidden">Audio 2</h3>
+                    
+                      <!-- 描述模块 -->
+                      <div class="audio-description">
+                          <!-- 中文描述 -->
+                          <div class="description lang-zh">
+                          <strong>音频描述：</strong> 日常场景下三人关于朋友旅程的讨论，发言人为三男(年轻)，发音清晰噪声较少，有较多的轮次替换。
+                          </div>
+                      
+                          <!-- 英文描述 -->
+                          <div class="description lang-en hidden">
+                          <strong>Audio Description:</strong> A conversation among three young male speakers about a friend's trip in a daily life setting, with clear speech, minimal noise, and frequent turn-taking.
+                          </div>
+                      </div>
+                  
+                        <audio controls>
+                          <source src="./audio/S03_140_16_197_77.wav" type="audio/wav">
+                          Your browser does not support the audio element.
+                        </audio>
+                  
+                        <div>
+                          <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+                        </div>
+                    
+                        <div class="section-container">
+                          <!-- 中文 -->
+                          <div class="language-column lang-zh">
+                            <h4>中文</h4>
+                
+                            <table id="qa1-zh" class="qa1-zh">
+                              <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+                              <tr><td>性别识别</td><td>音频中一共有几位男性说话？</td><td>音频中一共有四位男性说话。</td></tr>
+                              <tr><td>性别识别</td><td>音频中第三个说话人是男性还是女性？</td><td>男性</td></tr>
+                              <tr><td>年龄段识别</td><td>第一个说话人的年龄段是什么？</td><td>young adult</td></tr>
+                              <tr><td>音色分析</td><td>音频中第三个说话人语音*I woke up at like one.*的音量(volume)听起来怎么样？从 *booming*, *authoritative*, *loud*, *hushed*, *soft*中选择</td><td>第三个说话人的音量听起来是*loud*</td></tr>
+                              <tr><td>语音流畅度分析</td><td>在表述*Uh Im should I just drop them in the pot?*时，第一个说话人有结巴吗？</td><td>第一个说话人在表述时有结巴，具体表现为*Word Repetition*和*Interjection*</td></tr>
+                              <tr><td>语音流畅度分析</td><td>第一个说话人在表达*Im not that much of  I think th- this thing is is like um like its blunt now.*中出现了不自然的停顿，他为什么会停顿？</td><td>"第一个说话人可能是因为思考或不确定而停顿，具体表现为*Word Repetition*和*Interjection*</td></tr>
+                              <tr><td>情感识别</td><td>在表述*That that is not an excuse.*时，第二个说话人的情绪是什么？</td><td>第二个说话人的情绪是*Anger*</td></tr>
+                              <tr><td>说话人识别</td><td>音频中第1个说话人都说了哪些内容？</td><td>Yeah, you didnt have any commitments today. This was your only commitment. Uh Im should I just drop them in the pot? Im not that much of I think th- this thing is is like um like its blunt now. To where? Okay, you guys are just saying random places. Where are the- where are these places? There we go Sean visiting family?</td></tr>
+                              <tr><td>说话人计数</td><td>音频中是否有只发言一次或非常少的说话人？</td><td>第4个说话人</td></tr>
+                              <tr><td>动机推理</td><td>第2个说话人在表述*That that is not an excuse.*之后做出了什么行为，有无情绪或策略上的动因？</td><td>第2个说话人在表述*That that is not an excuse.*之后保持了一定时间的沉默，原因有：可能是为了强调自己的观点或者等待对方的回应。</td></tr>
+                              <tr><td>副语言交互识别</td><td>第2个说话人在表达*That that is not an excuse.*时的情绪是什么？是否影响到了其他人？第1个说话人的反应是什么？</td><td>第2个说话人在表达*That that is not an excuse.*时的情绪Anger影响到了其他人，第1个说话人的反应是讲话流畅度变化/音量变化/音调变化。</td></tr>
+                              <tr><td>说话人关系推理</td><td>根据语言风格和互动模式，第1个说话人和第2个说话人之间的关系是什么？从互动方式分析原因</td><td>朋友关系，原因：对话中两人讨论个人日程和旅行计划，互动自然随意，有打趣和轻微争执（如*That that is not an excuse*），情绪表达丰富，符合朋友间日常交流特征。</td></tr>
+                
+                            </table>
+                          </div>
+                    
+                          <!-- English -->
+                          <div class="language-column lang-en hidden">
+                            <h4>English</h4>
+                
+                            <table id="qa1-en" class="qa1-en">
+                              <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+                              <tr><td>Gender Recognition</td><td>How many male speakers are there in the audio?</td><td>There are four male speakers in the audio.</td></tr>
+                              <tr><td>Gender Recognition</td><td>Is the third speaker male or female?</td><td>Male</td></tr>
+                              <tr><td>Age Recognition</td><td>What is the age group of the first speaker?</td><td>young adult</td></tr>
+                              <tr><td>Voice Quality Analysis</td><td>How does the volume of the third speaker sound in the utterance *I woke up at like one.*? Choose from *booming*, *authoritative*, *loud*, *hushed*, *soft*</td><td>The third speaker’s volume sounds *loud*</td></tr>
+                              <tr><td>Speech Flow Analysis</td><td>Does the first speaker stutter in the utterance *Uh Im should I just drop them in the pot?*</td><td>The first speaker stutters, with *Word Repetition* and *Interjection*</td></tr>
+                              <tr><td>Speech Flow Analysis</td><td>The first speaker pauses unnaturally in *Im not that much of  I think th- this thing is is like um like its blunt now.* Why does the speaker pause?</td><td>The speaker may be pausing due to hesitation or uncertainty, indicated by *Word Repetition* and *Interjection*</td></tr>
+                              <tr><td>Emotion Recognition</td><td>What is the emotion of the second speaker in the utterance *That that is not an excuse.*?</td><td>The emotion is *Anger*</td></tr>
+                              <tr><td>Speaker Recognition</td><td>What did the first speaker say in the audio?</td><td>Yeah, you didn’t have any commitments today. This was your only commitment. Uh Im should I just drop them in the pot? Im not that much of I think th- this thing is is like um like its blunt now. To where? Okay, you guys are just saying random places. Where are the- where are these places? There we go Sean visiting family?</td></tr>
+                              <tr><td>Speaker Counting</td><td>Is there any speaker who speaks only once or very little?</td><td>The fourth speaker</td></tr>
+                              <tr><td>Motivation Reasoning</td><td>What did the second speaker do after saying *That that is not an excuse.*? Is there an emotional or strategic reason?</td><td>The second speaker remained silent for a while, possibly to emphasize their point or to wait for a response.</td></tr>
+                              <tr><td>Paralinguistic Interaction Analysis</td><td>What is the emotion of the second speaker in *That that is not an excuse.*? Did it affect others? What was the first speaker’s reaction?</td><td>The second speaker expressed *Anger*, which affected others. The first speaker responded with changes in speech fluency, volume, or pitch.</td></tr>
+                              <tr><td>Social Interaction Analysis</td><td>What is the relationship between the first and second speakers based on their language and interaction style? Provide reasoning.</td><td>They are friends. Their discussion of schedules and travel plans, casual tone, teasing, and mild disagreement (e.g., *That that is not an excuse*), with expressive emotions, reflect typical friendly interaction.</td></tr>
+                
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                
+                    <!-- 音频 3 -->
+                    <div class="audio-section" data-id="3">
+                        <h3 class="audio-title lang-zh">音频 3</h3>
+                        <h3 class="audio-title lang-en hidden">Audio 3</h3>
+                
+                    <!-- 描述模块 -->
+                    <div class="audio-description">
+                        <!-- 中文描述 -->
+                        <div class="description lang-zh">
+                        <strong>音频描述：</strong> 日常场景下四人关于用餐的对话，发言人为二男(中年)二女(年轻)，发音清晰略有背景音，有明显抢话/重叠情况。
+                        </div>
+                    
+                        <!-- 英文描述 -->
+                        <div class="description lang-en hidden">
+                        <strong>Audio Description:</strong> A casual conversation among four people about dining, featuring two middle-aged men and two young women. The speech is clear with slight background noise, and there are noticeable interruptions and overlapping speech.
+                        </div>
+                    </div>
+                
+                        <audio controls>
+                        <source src="./audio/S05_4456_18_4501_25.wav" type="audio/wav">
+                        Your browser does not support the audio element.
+                        </audio>
+                
+                        <div>
+                        <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+                        </div>
+                
+                        <div class="section-container">
+                        <!-- 中文 -->
+                        <div class="language-column lang-zh">
+                            <h4>中文</h4>
+                
+                            <table id="qa1-zh" class="qa1-zh">
+                            <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+                            <tr><td>性别识别</td><td>音频中一共有几位女性说话？</td><td>音频中一共有2位女性说话人。</td></tr>
+                            <tr><td>年龄段识别</td><td>第一个说话人的年龄段是什么？</td><td>第一个说话人的年龄段是young adult。</td></tr>
+                            <tr><td>情感识别</td><td>在表述*No. That is even more impressive man. Holy crap.*时，第一个说话人的情绪是什么？</td><td>Surprise</td></tr>
+                            <tr><td>情感识别</td><td>在表述*No doubt.*时，第一个说话人的情绪是什么？</td><td>Happiness</td></tr>
+                            <tr><td>说话人识别</td><td>音频中第1个说话人都说了哪些内容？</td><td>I didnt have anything with egg though. Mhm I had the egg mhm I think the egg pposed to you had two egg three eggs. Nice. No. That is even more impressive man. Holy crap. No doubt. just not eat the rest of the</td></tr>
+                            <tr><td>说话人计数</td><td>这段音频中一共出现了多少个不同的说话人？</td><td>4</td></tr>
+                            <tr><td>情感演变</td><td>第1个说话人在整段音频中一共出现了哪几种情绪？在哪句话有明显情绪转折？</td><td>第1个说话人出现的情绪有Neutral, Surprise, Happiness, 在*I didnt have anything with egg though.*时的情绪是Neutral，之后在*I think the egg pposed to you had two egg three eggs.*处变为Surprise</td></tr>
+                            <tr><td>音质演变</td><td>第1个说话人的音高(pitch)是否从deep变更到nasal？在哪句话中体现？</td><td>第1个说话人在*I didnt have anything with egg though.*时音高是deep，之后在*I think the egg pposed to you had two egg three eggs.*处变为nasal</td></tr>
+                            <tr><td>动机推理</td><td>第4个说话人在表述*Stolen.*之后做出了什么行为，有无情绪或策略上的动因？</td><td>第4个说话人在表述*Stolen.*之后保持了一定时间的沉默，原因可能是为了观察第1个说话人的反应，或者是为了制造幽默效果。</td></tr>
+                            <tr><td>副语言交互识别</td><td>第1个说话人在表达*I think the egg pposed to you had two egg three eggs.*时的情绪是什么？是否影响到了其他人？第4个说话人的反应是什么？</td><td>第1个说话人在表达*I think the egg pposed to you had two egg three eggs.*时的情绪Surprise影响到了其他人，第4个说话人的反应是言语回应*Stolen.*</td></tr>
+                
+                            </table>
+                        </div>
+                
+                        <!-- English -->
+                        <div class="language-column lang-en hidden">
+                            <h4>English</h4>
+                
+                            <table id="qa1-en" class="qa1-en">
+                            <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+                            <tr><td>Gender Recognition</td><td>How many female speakers are there in the audio?</td><td>There are 2 female speakers in the audio.</td></tr>
+                            <tr><td>Age Recognition</td><td>What is the age group of the first speaker?</td><td>The first speaker is in the young adult age group.</td></tr>
+                            <tr><td>Emotion Recognition</td><td>What is the emotion of the first speaker when saying *No. That is even more impressive man. Holy crap.*?</td><td>Surprise</td></tr>
+                            <tr><td>Emotion Recognition</td><td>What is the emotion of the first speaker when saying *No doubt.*?</td><td>Happiness</td></tr>
+                            <tr><td>Speaker Recognition</td><td>What did the first speaker say in the audio?</td><td>I didn't have anything with egg though. Mhm I had the egg mhm I think the egg pposed to you had two egg three eggs. Nice. No. That is even more impressive man. Holy crap. No doubt. just not eat the rest of the</td></tr>
+                            <tr><td>Speaker Counting</td><td>How many distinct speakers are there in this audio?</td><td>4</td></tr>
+                            <tr><td>Emotion Evolution</td><td>What emotions did the first speaker express throughout the audio? At which point is there a clear shift in emotion?</td><td>The first speaker expressed Neutral, Surprise, and Happiness. The emotion shifts from Neutral in *I didn't have anything with egg though.* to Surprise in *I think the egg pposed to you had two egg three eggs.*</td></tr>
+                            <tr><td>Voice Quality Evolution</td><td>Did the pitch of the first speaker change from deep to nasal? In which sentence did this occur?</td><td>The pitch was deep in *I didn't have anything with egg though.* and changed to nasal in *I think the egg pposed to you had two egg three eggs.*</td></tr>
+                            <tr><td>Motivation Reasoning</td><td>What did the fourth speaker do after saying *Stolen.*? Was there any emotional or strategic motive?</td><td>The fourth speaker remained silent for a while after saying *Stolen.*, possibly to observe the first speaker's reaction or to create a humorous effect.</td></tr>
+                            <tr><td>Paralinguistic Interaction Analysis</td><td>What was the emotion of the first speaker when saying *I think the egg pposed to you had two egg three eggs.*? Did it affect others? How did the fourth speaker respond?</td><td>The first speaker's emotion was Surprise, which affected others. The fourth speaker responded with the utterance *Stolen.*</td></tr>
+                
+                            </table>
+                        </div>
+                        </div>
+                    </div>
+                      
+                  </div>
+                
+                <!-- Alimeeting 数据来源 -->
+                <div class="data-source">
+                    <h2>📁 Alimeeting </h2>
+                    
+                    <!-- 数据集简介 -->
+                    <div class="dataset-description">
+                        <div class="lang-zh">
+                        <p><strong>简介：</strong>Alimeeting 是一个包含多人会议对话的中文语音数据集，语音采集于远场麦克风，具有重叠语音、多说话人交互等真实场景特点，适用于说话人识别、对话转录、情感分析等任务。</p>
+                        </div>
+                        <div class="lang-en hidden">
+                        <p><strong>Description:</strong> Alimeeting is a Chinese speech dataset featuring multi-speaker meeting conversations recorded with far-field microphones. It captures real-world challenges like overlapping speech and spontaneous interaction, suitable for tasks such as speaker identification, transcription, and emotion recognition.</p>
+                        </div>
+                    </div>
+                  
+                    <!-- 音频 1 -->
+                    <div class="audio-section" data-id="1">
+                      <h3 class="audio-title lang-zh">音频 1</h3>
+                      <h3 class="audio-title lang-en hidden">Audio 1</h3>
+                  
+                    <!-- 描述模块 -->
+                    <div class="audio-description">
+                        <!-- 中文描述 -->
+                        <div class="description lang-zh">
+                        <strong>音频描述：</strong> 会议场景下双人关于医保问题的讨论，发言人为一男(中年)一女(年轻)，发音清晰噪声较少，一人有明显口音。
+                        </div>
+                    
+                        <!-- 英文描述 -->
+                        <div class="description lang-en hidden">
+                        <strong>Audio Description:</strong> A two-speaker discussion on healthcare insurance in a meeting setting, involving one middle-aged male and one young female speaker, with clear speech, minimal noise, and one speaker exhibiting a noticeable accent.
+                        </div>
+                    </div>
+                
+                      <audio controls>
+                        <source src="./audio/alimeeting_R8009_M8018_MS809_256_88_319_23.mp3" type="audio/mp3">
+                        Your browser does not support the audio element.
+                      </audio>
+                
+                      <div>
+                        <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+                      </div>
+                  
+                      <div class="section-container">
+                        <!-- 中文 -->
+                        <div class="language-column lang-zh">
+                          <h4>中文</h4>
+                
+                          <table id="qa1-zh" class="qa1-zh">
+                            <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+                            <tr><td>口音/方言识别</td><td>音频中第一个说话人带有什么口音？</td><td>第一个说话人带有东亚口音。</td></tr>
+                            <tr><td>性别识别</td><td>音频中第一个说话人是男性还是女性？</td><td>男性</td></tr>
+                            <tr><td>年龄段识别</td><td>会话中处于young adult年龄段的说话人有哪些？（young adult / adult / senior adult）</td><td>第二个说话人处于young adult年龄段。</td></tr>
+                            <tr><td>音色分析</td><td>音频中第一个说话人语音*医保这块，他们报账的话需要找我们还是怎样。比如说他有些员工*的音质(texture)听起来怎么样？从 *silky*, *husky*, *raspy*, *guttural*, *vocal-fry*中选择</td><td>*husky*, *raspy*。</td></tr>
+                            <tr><td>说话人识别</td><td>音频中说医保这块，他们报账的话需要找我们还是怎样的说话人在音频中都说了哪些内容？</td><td>医保这块，他们报账的话需要找我们还是怎样。比如说他有些员工，他去医院看了病之后。 需要一些报销是要通过我们报吗？还是？ 呃，通过就是找国家报这块。 不找我们？对。 因为现在医院的话，我知道。 有些。 比如说他是自自己购买的话，就是医院直接报销了嘛。然后如果是。 就是。 单位代买的好像。 好像的话也需要找我们交给资料交给我们对吧？因为。 以后的话可能会有一些女员工，她比如生小孩，这些。 我觉得需要可以前期去了解一下。 那现在五险主要是他。 就是比如说养老。 失业这块的话，它是。 主要他是什么东西？ 就是里面他。</td></tr>
+                            <tr><td>说话人数量</td><td>这段音频中一共出现了多少个不同的说话人？</td><td>2</td></tr>
+                            <tr><td>音质演变</td><td>第1个说话人的音量(volume)是否从*authoritative*变更到*loud*？在哪句话中体现？</td><td>第1个说话人在*需要一些报销是要通过我们报吗？还是？*时音量是*authoritative*，之后在*比如说他是自自己购买的话，就是医院直接报销了嘛。然后如果是。*处变为*loud*</td></tr>
+                            <tr><td>对话转录</td><td>对话中有几个人，不同说话人分别说了什么？(以spk_1: ..., spk_2: ...为格式转录完整对话)</td><td>当前对话有2个说话人，对话转录：spk_1: *医保这块，他们报账的话需要找我们还是怎样。比如说他有些员工，他去医院看了病之后。* spk_1: *需要一些报销是要通过我们报吗？还是？* spk_1: *呃，通过就是找国家报这块。* spk_2: *这一块的话，他补。嗯* spk_2: *不找我们。* spk_1: *不找我们？对。* spk_2: *这个嗯，因为，这一块是他们到时候自己去那个。* spk_2: *嗯医院的，那个。去咨询吧，就。* spk_1: *因为现在医院的话，我知道。* spk_1: *有些。* spk_1: *比如说他是自自己购买的话，就是医院直接报销了嘛。然后如果是。* spk_2: *嗯。* spk_1: *就是。* spk_1: *单位代买的好像。* spk_1: *好像的话也需要找我们交给资料交给我们对吧？因为。* spk_1: *以后的话可能会有一些女员工，她比如生小孩，这些。* spk_2: *嗯* spk_1: *我觉得需要可以前期去了解一下。* spk_2: *嗯对这个的话，这现在目前我们，因为刚刚开始嘛，还不是特别了解，后面，后期我们会去再去了解一下。* spk_2: *他具体是。那个怎么。* spk_1: *那现在五险主要是他。* spk_1: *就是比如说养老。* spk_1: *失业这块的话，它是。* spk_1: *主要他是什么东西？* spk_1: *就是里面他。*</td></tr>
+                          </table>
+                        </div>
+                  
+                        <!-- English -->
+                        <div class="language-column lang-en hidden">
+                          <h4>English</h4>
+                
+                          <table id="qa1-en" class="qa1-en">
+                            <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+                            <tr><td>Accent/Dialect Recognition</td><td>What accent does the first speaker have in the audio?</td><td>The first speaker has an East Asian accent.</td></tr>
+                            <tr><td>Gender Recognition</td><td>Is the first speaker in the audio male or female?</td><td>Male</td></tr>
+                            <tr><td>Age Group Recognition</td><td>Which speakers in the conversation are in the young adult age group? (young adult / adult / senior adult)</td><td>The second speaker is in the young adult age group.</td></tr>
+                            <tr><td>Voice Quality Analysis</td><td>How does the voice texture of the first speaker sound when saying *医保这块，他们报账的话需要找我们还是怎样。比如说他有些员工*? Choose from *silky*, *husky*, *raspy*, *guttural*, *vocal-fry*</td><td>*husky*, *raspy*</td></tr>
+                            <tr><td>Speaker Identification</td><td>What did the speaker who said *医保这块，他们报账的话需要找我们还是怎样* say throughout the audio?</td><td>*医保这块，他们报账的话需要找我们还是怎样。比如说他有些员工，他去医院看了病之后。* *需要一些报销是要通过我们报吗？还是？* *呃，通过就是找国家报这块。* *不找我们？对。* *因为现在医院的话，我知道。* *有些。* *比如说他是自自己购买的话，就是医院直接报销了嘛。然后如果是。* *就是。* *单位代买的好像。* *好像的话也需要找我们交给资料交给我们对吧？因为。* *以后的话可能会有一些女员工，她比如生小孩，这些。* *我觉得需要可以前期去了解一下。* *那现在五险主要是他。* *就是比如说养老。* *失业这块的话，它是。* *主要他是什么东西？* *就是里面他。*</td></tr>
+                            <tr><td>Speaker Count</td><td>How many different speakers appear in this audio clip?</td><td>2</td></tr>
+                            <tr><td>Voice Volume Shift</td><td>Did the first speaker’s volume shift from *authoritative* to *loud*? In which sentence is this reflected?</td><td>The first speaker’s volume was *authoritative* in *需要一些报销是要通过我们报吗？还是？*, and shifted to *loud* in *比如说他是自自己购买的话，就是医院直接报销了嘛。然后如果是。*</td></tr>
+                            <tr><td>Conversation Transcription</td><td>How many speakers are in the conversation, and what did each say? (Format: spk_1: ..., spk_2: ...)</td><td>There are 2 speakers in this conversation. Transcription:  
+                            spk_1: *医保这块，他们报账的话需要找我们还是怎样。比如说他有些员工，他去医院看了病之后。*  
+                            spk_1: *需要一些报销是要通过我们报吗？还是？*  
+                            spk_1: *呃，通过就是找国家报这块。*  
+                            spk_2: *这一块的话，他补。嗯*  
+                            spk_2: *不找我们。*  
+                            spk_1: *不找我们？对。*  
+                            spk_2: *这个嗯，因为，这一块是他们到时候自己去那个。*  
+                            spk_2: *嗯医院的，那个。去咨询吧，就。*  
+                            spk_1: *因为现在医院的话，我知道。*  
+                            spk_1: *有些。*  
+                            spk_1: *比如说他是自自己购买的话，就是医院直接报销了嘛。然后如果是。*  
+                            spk_2: *嗯。*  
+                            spk_1: *就是。*  
+                            spk_1: *单位代买的好像。*  
+                            spk_1: *好像的话也需要找我们交给资料交给我们对吧？因为。*  
+                            spk_1: *以后的话可能会有一些女员工，她比如生小孩，这些。*  
+                            spk_2: *嗯*  
+                            spk_1: *我觉得需要可以前期去了解一下。*  
+                            spk_2: *嗯对这个的话，这现在目前我们，因为刚刚开始嘛，还不是特别了解，后面，后期我们会去再去了解一下。*  
+                            spk_2: *他具体是。那个怎么。*  
+                            spk_1: *那现在五险主要是他。*  
+                            spk_1: *就是比如说养老。*  
+                            spk_1: *失业这块的话，它是。*  
+                            spk_1: *主要他是什么东西？*  
+                            spk_1: *就是里面他。*</td></tr>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  
+                    <!-- 可以继续添加 Alimeeting 的音频 2、3 ... -->
+                    <!-- 音频 2 -->
+                    <div class="audio-section" data-id="2">
+                        <h3 class="audio-title lang-zh">音频 2</h3>
+                        <h3 class="audio-title lang-en hidden">Audio 2</h3>
+                    
+                      <!-- 描述模块 -->
+                      <div class="audio-description">
+                          <!-- 中文描述 -->
+                          <div class="description lang-zh">
+                          <strong>音频描述：</strong> 会议场景下三人关于手机产品的讨论，发言人为一男(中年)二女(年轻)，发音清晰噪声较少，出现打断/重叠情况。
+                          </div>
+                      
+                          <!-- 英文描述 -->
+                          <div class="description lang-en hidden">
+                          <strong>Audio Description:</strong> A three-speaker discussion in a meeting setting about mobile phone products, involving one middle-aged man and two young women. The speech is clear with minimal background noise, and interruptions/overlaps occur.
+                          </div>
+                      </div>
+                  
+                        <audio controls>
+                          <source src="./audio/alimeeting_R8001_M8004_MS801_6_90_130_39.mp3" type="audio/mp3">
+                          Your browser does not support the audio element.
+                        </audio>
+                  
+                        <div>
+                          <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+                        </div>
+                    
+                        <div class="section-container">
+                          <!-- 中文 -->
+                          <div class="language-column lang-zh">
+                            <h4>中文</h4>
+                
+                            <table id="qa1-zh" class="qa1-zh">
+                              <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+                              <tr><td>性别识别</td><td>音频中一共有几位男性说话？</td><td>音频中一共有2位男性说话人。</td></tr>
+                              <tr><td>年龄段识别</td><td>会话中处于adult年龄段的说话人有哪些？（young adult / adult / senior adult）</td><td>会话中处于adult年龄段的说话人有第二个说话人和第三个说话人。</td></tr>
+                              <tr><td>音色分析</td><td>音频中第一个说话人语音*好嗯，咱们今天针对咱们公司新出产的新出的一款这个手机啊产品啊，进行一下这个研讨会首先咱们确认一下咱们这个产品的目标，这个人群客户群这一块儿。*的音高(pitch)听起来怎么样？从*shrill*, *nasal*, *deep*中选择</td><td>nasal</td></tr>
+                              <tr><td>语音流畅度分析</td><td>第一个说话人在表达*好嗯，咱们今天针对咱们公司新出产的新出的一款这个手机啊产品啊，进行一下这个研讨会首先咱们确认一下咱们这个产品的目标，这个人群客户群这一块儿。*中出现了不自然的停顿，他为什么会停顿？</td><td>可能是因为思考产品定位或组织语言</td></tr>
+                              <tr><td>情感识别</td><td>在表述*啊，我觉得是有要要有针对性的啊，我觉得咱们的设计外观还是很时尚，还是需要去呃，设定一下呃比较适合的年龄段儿啊，比方说因为它是有彩色的呀。*时，第三个说话人的情绪是什么？</td><td>Happiness</td></tr>
+                              <tr><td>说话人计数</td><td>这段音频中一共出现了多少个不同的说话人？</td><td>4</td></tr>
+                              <tr><td>情感演变</td><td>第3个说话人在整段音频中一共出现了哪几种情绪？在哪句话有明显情绪转折？</td><td>第3个说话人出现的情绪有Happiness, Neutral, 在*啊，我觉得是有要要有针对性的啊...*时的情绪是Happiness，之后在*但是现在的呃这个版本的话...*处变为Neutral。</td></tr>
+                
+                
+                            </table>
+                          </div>
+                    
+                          <!-- English -->
+                          <div class="language-column lang-en hidden">
+                            <h4>English</h4>
+                
+                            <table id="qa1-en" class="qa1-en">
+                              <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+                              <tr><td>Gender Recognition</td><td>How many male speakers are there in the audio?</td><td>There are 2 male speakers in the audio.</td></tr>
+                              <tr><td>Age Recognition</td><td>Which speakers are in the adult age group? (young adult / adult / senior adult)</td><td>The second and third speakers are in the adult age group.</td></tr>
+                              <tr><td>Voice Quality Analysis</td><td>How does the pitch of the first speaker sound in the utterance "*好嗯，咱们今天针对咱们公司新出产的新出的一款这个手机啊产品啊，进行一下这个研讨会首先咱们确认一下咱们这个产品的目标，这个人群客户群这一块儿。*"? Choose from *shrill*, *nasal*, *deep*</td><td>nasal</td></tr>
+                              <tr><td>Speech Flow Analysis</td><td>Why does the first speaker pause unnaturally in the utterance "*好嗯，咱们今天针对咱们公司新出产的新出的一款这个手机啊产品啊，进行一下这个研讨会首先咱们确认一下咱们这个产品的目标，这个人群客户群这一块儿。*"</td><td>Possibly due to thinking about product positioning or organizing their wording.</td></tr>
+                              <tr><td>Emotion Recognition</td><td>What is the third speaker’s emotion when saying "*啊，我觉得是有要要有针对性的啊，我觉得咱们的设计外观还是很时尚，还是需要去呃，设定一下呃比较适合的年龄段儿啊，比方说因为它是有彩色的呀。*"</td><td>Happiness</td></tr>
+                              <tr><td>Speaker Counting</td><td>How many distinct speakers appear in the audio?</td><td>4</td></tr>
+                              <tr><td>Emotion Evolution</td><td>What emotions does the third speaker express throughout the audio? In which utterance does a clear emotional shift occur?</td><td>The third speaker expresses Happiness and Neutral. The emotion is Happiness in "*啊，我觉得是有要要有针对性的啊...*", and shifts to Neutral in "*但是现在的呃这个版本的话...*"</td></tr>
+                
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                
+                    <!-- 音频 3 -->
+                    <div class="audio-section" data-id="3">
+                        <h3 class="audio-title lang-zh">音频 3</h3>
+                        <h3 class="audio-title lang-en hidden">Audio 3</h3>
+                
+                    <!-- 描述模块 -->
+                    <div class="audio-description">
+                        <!-- 中文描述 -->
+                        <div class="description lang-zh">
+                        <strong>音频描述：</strong> 会议场景下三人关于教师节礼物的讨论，发言人为二男(中年)一女(年轻)，发音清晰噪声较少，两人有明显口音，出现抢话/重叠情况。
+                        </div>
+                    
+                        <!-- 英文描述 -->
+                        <div class="description lang-en hidden">
+                        <strong>Audio Description:</strong> A meeting scenario where three speakers—two middle-aged men and one young woman—discuss Teacher’s Day gifts. The speech is clear with minimal noise; two speakers have noticeable accents, and interruptions/overlaps occur.
+                        </div>
+                    </div>
+                
+                        <audio controls>
+                        <source src="./audio/alimeeting_R8003_M8001_MS801_127_59_224_73.mp3" type="audio/mp3">
+                        Your browser does not support the audio element.
+                        </audio>
+                
+                        <div>
+                        <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+                        </div>
+                
+                        <div class="section-container">
+                        <!-- 中文 -->
+                        <div class="language-column lang-zh">
+                            <h4>中文</h4>
+                
+                            <table id="qa1-zh" class="qa1-zh">
+                            <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+                            <tr><td>口音/方言识别</td><td>音频中第一个说话人带有什么口音？</td><td>第一个说话人带有东亚口音，北京口音</td></tr>
+                            <tr><td>年龄段识别</td><td>会话中处于成年年龄段的说话人有哪些？</td><td>第一个说话人、第二个说话人和第三个说话人都是成年人。</td></tr>
+                            <tr><td>音色分析</td><td>音频中第二个说话人语音*这个肯定有一平衡点，你比如说一二年级的孩子他不懂表达，口齿不清，嗯思维肯定还没有。*的音量(volume)听起来怎么样？从 *booming*, *authoritative*, *loud*, *hushed*, *soft*中选择</td><td>第二个说话人的音量听起来是 *authoritative*, *loud*。</td></tr>
+                            <tr><td>语音流畅度分析</td><td>在表述*给老师送过去，这是表示对老师的尊重是吧，嗯到你到大年级的学生呢肯定要给老师，因为嗯他要学习知识多了嘛，要老老师这一年也挺辛苦的了。*时，第一个说话人有停顿/重复吗？</td><td>第一个说话人在表述时有停顿和重复，具体表现为 *Prolongation*, *Interjection*, *Word Repetition*</td></tr>
+                            <tr><td>说话人计数</td><td>音频中哪位说话人发言最多？</td><td>第2个说话人</td></tr>
+                            <tr><td>音质演变</td><td>第二个说话人的音量(volume)是否从loud变更到authoritative？在哪句话中体现？</td><td>第二个说话人在*这个肯定有一平衡点，你比如说一二年级的孩子他不懂表达...*时音量是loud，之后在*啊，现在这这几年比较流行，护眼灯...*处变为authoritative</td></tr>
+                            <tr><td>地理位置判断</td><td>谁可能是东亚人？依据是什么？</td><td>第一个、第二个和第三个说话人都可能是东亚人，依据是他们的口音均为东亚口音，且讨论的话题如教师节送礼、家长与孩子的互动等，与东亚文化中的教育观念和家庭价值观相符。</td></tr>
+                            <tr><td>原因归因</td><td>第2个说话人在表达*这个肯定有一平衡点，你比如说一二年级的孩子...*时与表达*啊，现在这这几年比较流行，护眼灯...*时情绪分别是什么，是否与第3个说话人的某句发言有关？</td><td>第2个说话人在表达*这个肯定有一平衡点，你比如说一二年级的孩子...*的时候情绪为Neutral，在表达*啊，现在这这几年比较流行，护眼灯...*时情绪变为Happiness，与第3个说话人发言*啊，护眼灯，嗯。*有关，原因可能是第3个说话人提出的护眼灯建议得到了第2个说话人的认同和赞赏。</td></tr>
+                            <tr><td>说话人关系推理</td><td>根据语言风格和互动模式，第一个说话人和第二个说话人之间的关系是什么？从互动方式分析原因</td><td>同事关系，原因：两人围绕同一话题进行讨论，互动方式平等，情绪以Neutral为主，讨论内容为工作相关议题（教师节送礼策略），但没有上下级关系的特征如明确身份称呼或领导内容。</td></tr>
+                          </table>
+                        </div>
+                
+                        <!-- English -->
+                        <div class="language-column lang-en hidden">
+                            <h4>English</h4>
+                
+                            <table id="qa1-en" class="qa1-en">
+                            <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+                            <tr><td>Accent/Dialect Recognition</td><td>What accent does the first speaker have?</td><td>The first speaker has an East Asian accent, specifically a Beijing accent.</td></tr>
+                            <tr><td>Age Recognition</td><td>Which speakers are adults in the conversation?</td><td>The first, second, and third speakers are all adults.</td></tr>
+                            <tr><td>Voice Quality Analysis</td><td>What is the volume of the second speaker's voice in the utterance *这个肯定有一平衡点，你比如说一二年级的孩子他不懂表达，口齿不清，嗯思维肯定还没有。*? Choose from *booming*, *authoritative*, *loud*, *hushed*, *soft*</td><td>The second speaker's volume sounds *authoritative*, *loud*.</td></tr>
+                            <tr><td>Speech Flow Analysis</td><td>Does the first speaker show hesitation or repetition in the utterance *给老师送过去，这是表示对老师的尊重是吧，嗯到你到大年级的学生呢肯定要给老师，因为嗯他要学习知识多了嘛，要老老师这一年也挺辛苦的了。*?</td><td>Yes, the first speaker exhibits *Prolongation*, *Interjection*, and *Word Repetition*.</td></tr>
+                            <tr><td>Speaker Counting</td><td>Which speaker talks the most in the audio?</td><td>The second speaker.</td></tr>
+                            <tr><td>Voice Quality Evolution</td><td>Does the second speaker’s volume change from *loud* to *authoritative*? In which utterance is it reflected?</td><td>The second speaker’s volume is *loud* in *这个肯定有一平衡点，你比如说一二年级的孩子他不懂表达...*, and changes to *authoritative* in *啊，现在这这几年比较流行，护眼灯...*</td></tr>
+                            <tr><td>Geographical Location Estimation</td><td>Who is likely to be East Asian? What is the basis?</td><td>All three speakers are likely East Asian, based on their East Asian accents and discussion topics such as Teacher’s Day gifts and parent-child interaction, which reflect cultural values typical of East Asia.</td></tr>
+                            <tr><td>Causal Attribution</td><td>What are the second speaker’s emotions in the utterances *这个肯定有一平衡点，你比如说一二年级的孩子...* and *啊，现在这这几年比较流行，护眼灯...*, and are they related to any utterance by the third speaker?</td><td>The second speaker is Neutral in the first utterance, and becomes Happy in the second, possibly influenced by the third speaker’s suggestion *啊，护眼灯，嗯。*, which was affirmed by the second speaker.</td></tr>
+                            <tr><td>Speaker Relationship Reasoning</td><td>What is the relationship between the first and second speakers based on language style and interaction?</td><td>Colleagues. Reason: They discuss the same topic with equal participation, show mainly Neutral emotions, and focus on work-related matters (Teacher’s Day gift planning), without hierarchical cues like formal address or authority dynamics.</td></tr>
+                            
+                            </table>
+                        </div>
+                        </div>
+                    </div>
+                      
+                  </div>        
+    <!-- 数据来源说明模块 -->
+<!-- 中文版本 -->
+  <div class="data-source-box source-film lang-zh">
+    <h2>🎬 影视剧多人对话数据</h2>
+    <p>本部分音频来自 <strong>EN-Film</strong> 和 <strong>CN-Film</strong> 数据集，副语言信息丰富、交互复杂。</p>
+  </div>
+  
+  <div class="data-source-box source-film lang-en hidden">
+    <h2>🎬 Multi-speaker Conversations from Films</h2>
+    <p>This section includes audio from <strong>EN-Film</strong> and <strong>CN-Film</strong>, containing rich paralinguistic signals and complex speaker interactions.</p>
+  </div>
+
+
+  <div class="data-source">
+    <h2>📁 EN Film Data</h2>
+  
+    <!-- 数据集简介 -->
+    <div class="dataset-description">
+    <div class="lang-zh">
+        <p><strong>简介：</strong>EN Film 是自行采集的野外英文音频，声学环境复杂，具有重叠语音、多说话人交互等真实场景特点，适用于说话人识别、对话转录、情感分析、意图识别等任务。</p>
+        </div>
+        <div class="lang-en hidden">
+        <p><strong>Description:</strong> EN Film is a self-collected English audio dataset recorded in the wild. It features complex acoustic environments with overlapping speech and multi-speaker interactions, making it suitable for tasks such as speaker recognition, dialogue transcription, emotion analysis, and intent recognition.</p>
+        </div>
+    </div>
+  
+    <!-- 音频 1 -->
+    <div class="audio-section" data-id="1">
+      <h3 class="audio-title lang-zh">音频 1</h3>
+      <h3 class="audio-title lang-en hidden">Audio 1</h3>
+  
+    <!-- 描述模块 -->
+    <div class="audio-description">
+        <!-- 中文描述 -->
+        <div class="description lang-zh">
+        <strong>音频描述：</strong> 日常场景下双人关于其他人行为的对话，发言人为一男(年轻)一女(年轻)，一人有明显情感和副语言信息有明显变化，发音清晰，有少量背景音。
+        </div>
+    
+        <!-- 英文描述 -->
+        <div class="description lang-en hidden">
+        <strong>Audio Description:</strong> A two-person conversation in a daily setting about someone else's behavior, involving one young male and one young female speaker. One speaker shows noticeable emotional and paralinguistic changes. The speech is clear with slight background noise.
+        </div>
+    </div>
+
+      <audio controls>
+        <source src="./audio/66cf4a243ef2144da20fedaa_0Syz0sLMAGg_1_41.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+      </audio>
+
+      <div>
+        <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+      </div>
+  
+      <div class="section-container">
+        <!-- 中文 -->
+        <div class="language-column lang-zh">
+          <h4>中文</h4>
+
+          <table id="qa1-zh" class="qa1-zh">
+            <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+            <tr><td>说话人计数</td><td>音频中哪位说话人发言最多？</td><td>第1个说话人</td></tr>
+            <tr><td>说话人计数</td><td>音频中有多少个不同的说话人?</td><td>2</td></tr>
+            <tr><td>性别识别</td><td>音频中第二个说话人是男性还是女性？</td><td>女性。</td></tr>
+            <tr><td>社会角色识别</td><td>谁在对话结尾试图掌控谈话？他是如何做到的？</td><td>spk_2 试图通过打断 spk_1 的慌乱发言，说出“等等，停一下，冷静点”来让他冷静下来，并重新掌控谈话节奏。</td></tr>
+            <tr><td>情感演变</td><td> spk_1 的情绪在整个对话过程中是如何变化的？请提供具体的语句来说明这种变化。</td><td>spk_1 的情绪从担忧发展为强烈的恐惧。一开始，他通过说「这是她过去两小时里第四次去洗手间了」表达出担忧。随后，当他开始想象灾难性情景时，情绪显著升级，说出「万一我们也被传染了呢？万一我们感染了瑞典国王呢？战争就是这样开始的！」，显示出从焦虑到惊恐的转变。</td></tr>
+          </table>
+        </div>
+  
+        <!-- English -->
+        <div class="language-column lang-en hidden">
+          <h4>English</h4>
+
+          <table id="qa1-en" class="qa1-en">
+            <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+            <tr><td>Speaker Counting</td><td>Which speaker talks the most in the audio?</td><td>Speaker 1</td></tr>
+            <tr><td>Speaker Counting</td><td>How many different speakers are there in the audio?</td><td>2</td></tr>
+            <tr><td>Gender Recognition</td><td>Is the second speaker male or female?</td><td>Female</td></tr>
+            <tr><td>Social Role Recognition</td><td>Who tries to take control of the conversation at the end, and how?</td><td>Speaker 2 attempts to regain control by interrupting Speaker 1’s panicked speech, saying “Wait, stop, calm down” to steady him and steer the conversation.</td></tr>
+            <tr><td>Emotion Evolution</td><td>How does Speaker 1’s emotion change throughout the conversation? Please cite specific utterances to illustrate this change.</td><td>Speaker 1’s emotion shifts from concern to intense fear. Initially, he expresses concern by saying “That’s the fourth time she’s gone to the bathroom in the last two hours.” Later, as he imagines disastrous scenarios, his anxiety escalates to panic, saying “What if we got infected too? What if we infected the King of Sweden? That’s how wars start!”</td></tr>
+
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 音频 2 -->
+    <div class="audio-section" data-id="2">
+        <h3 class="audio-title lang-zh">音频 2</h3>
+        <h3 class="audio-title lang-en hidden">Audio 2</h3>
+    
+      <!-- 描述模块 -->
+      <div class="audio-description">
+          <!-- 中文描述 -->
+          <div class="description lang-zh">
+          <strong>音频描述：</strong> 日常场景下三人关于派对行为的对话，发言人为三女(年轻)，副语言信息、说话人互动丰富，意图明显，说话人发音清晰。
+          </div>
+      
+          <!-- 英文描述 -->
+          <div class="description lang-en hidden">
+          <strong>Audio Description:</strong> A conversation in a daily setting among three young female speakers about party behaviors, featuring clear speech, rich paralinguistic cues, active speaker interaction, and clear intentions.
+          </div>
+      </div>
+  
+        <audio controls>
+          <source src="./audio/66e6937bddd88b3e4be3e65b_JVHy3b0SZhQ_0_68.mp3" type="audio/mp3">
+          Your browser does not support the audio element.
+        </audio>
+  
+        <div>
+          <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+        </div>
+    
+        <div class="section-container">
+          <!-- 中文 -->
+          <div class="language-column lang-zh">
+            <h4>中文</h4>
+
+            <table id="qa1-zh" class="qa1-zh">
+              <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+              <tr><td>观点变化识别</td><td>spk_1 对自己行为的看法在对话过程中是否发生了变化？她的不同观点是什么？这种变化是如何发展的？</td><td> 一开始，spk_1 持怀疑态度，不相信自己做过什么疯狂的事（例如：“我做了那个？”、“但我根本不会跳爱尔兰踢踏舞”）。后来，她接受了朋友的说法，并对自己的行为感到尴尬（例如：“我有露出来什么吗？”），这表明她的观点从不相信逐渐转变为相信朋友对事件的描述</td></tr>
+              <tr><td>表达偏好识别</td><td>根据 spk_1 的表达方式和兴趣话题，她最可能属于哪个年龄段？请结合对话中的例子说明。</td><td>spk_1 最可能是 20 至 30 岁的年轻人（Young adults），因为她谈论的话题包括单身派对、在酒吧跳舞、与消防员互动等，这些都是该年龄段人群常见的兴趣点，体现出对社交活动和轻松冒险的关注</td></tr>
+              <tr><td>社交互动识别</td><td>spk_2 对 spk_1 行为的幽默描述如何影响了对话的社交氛围？</td><td> 这种描述营造出一种既尴尬又好笑的氛围，加深了 spk_1 的尴尬感。</td></tr>
+              <tr><td>说话人计数</td><td>这段对话中有多少位不同的说话人？</td><td>一共有三位说话人：spk_1、spk_2 和 spk_3。</td></tr>
+            </table>
+          </div>
+    
+          <!-- English -->
+          <div class="language-column lang-en hidden">
+            <h4>English</h4>
+
+            <table id="qa1-en" class="qa1-en">
+              <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+              <tr><td>Opinion Change Recognition</td><td>Did spk_1’s view of her own behavior change during the conversation? What were her different viewpoints? How did this change develop?</td><td>Initially, spk_1 was doubtful and didn’t believe she had done anything crazy (e.g., “I did that?”, “But I don’t even know how to Irish step dance”). Later, she accepted her friends’ account and felt embarrassed about her actions (e.g., “Did I flash anyone?”), indicating a shift from disbelief to acceptance of their description.</td></tr>
+              <tr><td>Expression Preference Recognition</td><td>Based on spk_1’s manner of expression and topics of interest, which age group does she most likely belong to? Provide examples from the conversation.</td><td>spk_1 is most likely a young adult (20–30 years old), as she discusses topics like bachelorette parties, dancing at bars, and interactions with firefighters—common interests for people in this age group, reflecting a focus on social activities and light-hearted adventures.</td></tr>
+              <tr><td>Social Interaction Recognition</td><td>How did spk_2’s humorous description of spk_1’s behavior influence the social atmosphere of the conversation?</td><td>This added a tone of awkward humor, intensifying spk_1’s sense of embarrassment while also creating a playful and engaging dynamic among the speakers.</td></tr>
+              <tr><td>Speaker Counting</td><td>How many different speakers are there in this conversation?</td><td>There are three speakers: spk_1, spk_2, and spk_3.</td></tr>
+
+            </table>
+          </div>
+        </div>
+      </div>
+
+    <!-- 音频 3 -->
+    <div class="audio-section" data-id="3">
+        <h3 class="audio-title lang-zh">音频 3</h3>
+        <h3 class="audio-title lang-en hidden">Audio 3</h3>
+    
+      <!-- 描述模块 -->
+      <div class="audio-description">
+          <!-- 中文描述 -->
+          <div class="description lang-zh">
+          <strong>音频描述：</strong> 日常场景下三人关于锻炼的对话，发言人为二女(中年)，一人有明显情感/音高/音量变化，有明显口音，发音清晰，有部分背景音。
+          </div>
+      
+          <!-- 英文描述 -->
+          <div class="description lang-en hidden">
+          <strong>Audio Description:</strong> A three-speaker conversation in a daily setting about exercise, featuring two middle-aged female speakers. One speaker exhibits noticeable emotion, pitch, and volume changes, speaks with a distinct accent, and all speech is clear with some background noise.
+          </div>
+      </div>
+  
+        <audio controls>
+          <source src="./audio/66ea9f97e1086caeb81056b8_V6ez1-qOJww_0_82.mp3" type="audio/mp3">
+          Your browser does not support the audio element.
+        </audio>
+  
+        <div>
+          <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+        </div>
+    
+        <div class="section-container">
+          <!-- 中文 -->
+          <div class="language-column lang-zh">
+            <h4>中文</h4>
+
+            <table id="qa1-zh" class="qa1-zh">
+              <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+              <tr><td>说话人计数</td><td>这段音频中可以听到多少位不同的说话人？</td><td> 一共有 3 位不同的说话人。</td></tr>
+              <tr><td>社交互动识别</td><td> 当 spk_2 说出 “Surprise!” 时，她试图使用什么样的社交策略来建立关系？spk_1 是如何回应的？</td><td>spk_2 试图通过“惊喜”营造一种友好且自发的互动，以拉近与 spk_1 的关系，但 spk_1 的回应是假装惊讶并紧接着找借口，表明他有抵触情绪，并试图保持距离。</td></tr>
+            </table>
+          </div>
+    
+          <!-- English -->
+          <div class="language-column lang-en hidden">
+            <h4>English</h4>
+
+            <table id="qa1-en" class="qa1-en">
+              <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+              <tr><td>Speaker Counting</td><td>How many different speakers can be heard in this audio?</td><td>There are 3 different speakers in total.</td></tr>
+              <tr><td>Social Interaction Recognition</td><td>When spk_2 says “Surprise!”, what kind of social strategy is she trying to use to build rapport? How does spk_1 respond?</td><td>spk_2 attempts to create a friendly and spontaneous interaction by expressing “Surprise!” to build rapport with spk_1, but spk_1 responds with a feigned surprise followed by making excuses, indicating resistance and an attempt to maintain distance.</td></tr>
+
+            </table>
+          </div>
+        </div>
+      </div>
+
+
+  <!-- CN Film 数据来源 -->
+  <div class="data-source">
+    <h2>📁 CN Film Data</h2>
+  
+    <!-- 数据集简介 -->
+    <div class="dataset-description">
+    <div class="lang-zh">
+        <p><strong>简介：</strong>CN Film 是自行采集的野外中文数据，声学环境复杂，具有重叠语音、多说话人交互等真实场景特点，适用于说话人识别、对话转录、情感分析、意图识别等任务。</p>
+        </div>
+        <div class="lang-en hidden">
+        <p><strong>Description:</strong> CN Film is a self-collected in-the-wild Chinese dataset featuring complex acoustic environments, overlapping speech, and multi-speaker interactions. It is suitable for tasks such as Speaker Recognition, Dialogue Transcription, Emotion Recognition, and Intention Recognition .</p>
+        </div>
+    </div>
+  
+    <!-- 音频 1 -->
+    <div class="audio-section" data-id="1">
+      <h3 class="audio-title lang-zh">音频 1</h3>
+      <h3 class="audio-title lang-en hidden">Audio 1</h3>
+  
+    <!-- 描述模块 -->
+    <div class="audio-description">
+        <!-- 中文描述 -->
+        <div class="description lang-zh">
+        <strong>音频描述：</strong> 日常场景下双人关于工作安排的对话，发言人为二男(中年、年轻)，一人有明显口音，一人有明显情感变化，发音清晰噪声较少，有明显主次关系。
+        </div>
+    
+        <!-- 英文描述 -->
+        <div class="description lang-en hidden">
+        <strong>Audio Description:</strong> A two-person conversation in a daily setting about work arrangements, involving one middle-aged and one younger male speaker. One speaker has a noticeable accent, the other shows clear emotional changes. Speech is clear with minimal background noise, and a clear primary-secondary speaker relationship is present.
+        </div>
+    </div>
+ 
+      <audio controls>
+        <source src="./audio/inthenameofpeople_04_0145_0241_gaudiolab_speech.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+      </audio>
+
+      <div>
+        <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+      </div>
+  
+      <div class="section-container">
+        <!-- 中文 -->
+        <div class="language-column lang-zh">
+          <h4>中文</h4>
+
+          <table id="qa1-zh" class="qa1-zh">
+            <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+            <tr><td>原因归因</td><td>speaker_2在说*扫地*的时候是什么情绪，这个情绪的原因是什么</td><td>疑惑惊讶的情绪，觉得对方安排的扫地打杂的工作配不上自己的身份，损害了他的尊严</td></tr>
+            <tr><td>动机推理</td><td>speaker_1最后要说*包您吃包您住，扫地打杂不委屈你吧*的目的是什么</td><td>目的是为了劝说对方接受一份待遇不高或较辛苦的工作，用看似*好说话*的语气，降低对方的心理防备</td></tr>
+            <tr><td>音色分析</td><td>音频中有谁的声音听起来低沉（Deep）吗？</td><td>speaker_2</td></tr>
+            <tr><td>情感演变</td><td>speaker_2在对话中的情感变化是怎么样的？结合具体句子回答</td><td>speaker_2先是担忧（我知道，可是我也得生存下去），然后是高兴（好啊好啊），最后是疑惑（扫地）</td></tr>
+          </table>
+        </div>
+  
+        <!-- English -->
+        <div class="language-column lang-en hidden">
+          <h4>English</h4>
+
+          <table id="qa1-en" class="qa1-en">
+            <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+            <tr><td>Cause Attribution</td><td>What is speaker_2’s emotion when saying *sweeping* and what caused it?</td><td>A mix of confusion and surprise, feeling that being assigned to sweep and do chores is beneath his status and hurts his dignity.</td></tr>
+            <tr><td>Motivation Reasoning</td><td>What is speaker_1’s intention behind saying *We’ll cover your meals and accommodation, sweeping and chores aren’t too much to ask, right?*</td><td>The purpose is to persuade the other person to accept a low-paying or physically demanding job by using a seemingly casual tone to lower psychological resistance.</td></tr>
+            <tr><td>Voice Quality Analysis</td><td>Whose voice in the audio sounds deep?</td><td>speaker_2</td></tr>
+            <tr><td>Emotion Evolution</td><td>How does speaker_2’s emotion change throughout the conversation? Cite specific sentences.</td><td>Speaker_2 starts with worry (*I know, but I have to survive too*), then becomes happy (*Sure, sure*), and ends with confusion (*sweeping*).</td></tr>
+
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 音频 2 -->
+    <div class="audio-section" data-id="2">
+        <h3 class="audio-title lang-zh">音频 2</h3>
+        <h3 class="audio-title lang-en hidden">Audio 2</h3>
+    
+      <!-- 描述模块 -->
+      <div class="audio-description">
+          <!-- 中文描述 -->
+          <div class="description lang-zh">
+          <strong>音频描述：</strong> 日常场景下三人关于加班的对话，发言人为二女(中年、年轻)一男(年轻)，副语言信息丰富，有明显主次关系，说话人发音清晰。
+          </div>
+      
+          <!-- 英文描述 -->
+          <div class="description lang-en hidden">
+          <strong>Audio Description:</strong> In a daily-life setting, three speakers (two females—one middle-aged, one young—and one young male) have a conversation about working overtime. The main and supporting roles are clearly defined, with rich paralinguistic cues and clear speech from all participants.
+          </div>
+      </div>
+  
+        <audio controls>
+          <source src="./audio/inthenameofpeople_01_0314_0355_gaudiolab_speech.mp3" type="audio/mp3">
+          Your browser does not support the audio element.
+        </audio>
+  
+        <div>
+          <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+        </div>
+    
+        <div class="section-container">
+          <!-- 中文 -->
+          <div class="language-column lang-zh">
+            <h4>中文</h4>
+
+            <table id="qa1-zh" class="qa1-zh">
+              <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+              <tr><td>原因归因</td><td>speaker_1 生气的直接原因是什么？</td><td>被要求加班</td></tr>
+              <tr><td>动机推理</td><td>speaker_2最后说*教教我呗*意图是什么，是真的想要请教吗</td><td>意图是反击和调侃，带有开玩笑和施压的意味，是在说反话，speaker_2最后说*教教我呗*不是真的想要请教。</td></tr>
+              <tr><td>对话背景推理</td><td>该对话有可能在什么情景下发生的,日常生活或正式办公,speaker_2和speaker_1的关系可能是什么</td><td>正式办公场景，领导和下属</td></tr>
+              <tr><td>社会角色识别</td><td>speaker_1和speaker_3可能是什么关系</td><td>是恋人关系</td></tr>
+              <tr><td>说话人识别</td><td>speaker_3在说完*您在这看着，我们怎么谈呀？*后发生了说话人切换吗</td><td>speaker_2接话，*你们不是老说我不会谈恋爱吗？两位老师，就在这谈，教教我呗。*</td></tr>
+              <tr><td>性别识别</td><td>这段音频中一共有几位女性在说话？</td><td>2位</td></tr>
+            </table>
+          </div>
+    
+          <!-- English -->
+          <div class="language-column lang-en hidden">
+            <h4>English</h4>
+
+            <table id="qa1-en" class="qa1-en">
+              <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+              <tr><td>Reasoning for Cause</td><td>What is the direct reason for speaker_1's anger?</td><td>Being asked to work overtime</td></tr>
+              <tr><td>Motivation Reasoning</td><td>What is the intent behind speaker_2 saying *Teach me then* at the end? Is it a genuine request for help?</td><td>The intent is to retaliate and tease, with a tone of sarcasm and pressure. It’s not a genuine request; speaker_2 is speaking ironically.</td></tr>
+              <tr><td>Dialogue Background</td><td>In what context is this dialogue likely taking place—daily life or formal work setting? What is the possible relationship between speaker_2 and speaker_1?</td><td>A formal work setting; likely a supervisor-subordinate relationship</td></tr>
+              <tr><td>Social Role Recognition</td><td>What is the possible relationship between speaker_1 and speaker_3?</td><td>They are likely in a romantic relationship</td></tr>
+              <tr><td>Speaker Recognition</td><td>Did the speaker change after speaker_3 said *You're just watching—how are we supposed to talk?*</td><td>Yes, speaker_2 responded: *Didn’t you all say I don’t know how to date? You two, just talk here—teach me then.*</td></tr>
+              <tr><td>Gender Recognition</td><td>How many female speakers are there in this audio?</td><td>2</td></tr>
+
+            </table>
+          </div>
+        </div>
+      </div>
+
+    <!-- 音频 3 -->
+    <div class="audio-section" data-id="3">
+        <h3 class="audio-title lang-zh">音频 3</h3>
+        <h3 class="audio-title lang-en hidden">Audio 3</h3>
+    
+      <!-- 描述模块 -->
+      <div class="audio-description">
+          <!-- 中文描述 -->
+          <div class="description lang-zh">
+          <strong>音频描述：</strong> 日常场景下双人关于工作的对话，发言人为二男(老年、中年)，一人有明显情感/音高/音量变化，有明显主次关系，发音清晰，有部分背景音。
+          </div>
+      
+          <!-- 英文描述 -->
+          <div class="description lang-en hidden">
+          <strong>Audio Description:</strong> A two-person conversation about work in a daily-life setting, spoken by two males (one elderly, one middle-aged). One speaker shows noticeable changes in emotion, pitch, and volume. There is a clear dominant–subordinate relationship. Speech is clear, with some background noise.
+          </div>
+      </div>
+  
+        <audio controls>
+          <source src="./audio/mingdynasty_05_0805_0920_gaudiolab_speech.mp3" type="audio/mp3">
+          Your browser does not support the audio element.
+        </audio>
+  
+        <div>
+          <button class="toggle-button" onclick="toggleContent(this, 'qa1')">展示问答内容</button>
+        </div>
+    
+        <div class="section-container">
+          <!-- 中文 -->
+          <div class="language-column lang-zh">
+            <h4>中文</h4>
+
+            <table id="qa1-zh" class="qa1-zh">
+              <tr><th>任务</th><th>问题</th><th>答案</th></tr>
+              <tr><td>原因归因</td><td>speaker_1说*你有什么资格来教训我*情绪，原因</td><td>因为他认为自己肩负着大明朝*两京一十三省*的重担，国家的责任都在他的肩上，因此他觉得胡宗宪没有资格用*天下苍生*这几个字来教训他。</td></tr>
+              <tr><td>原因归因</td><td>speaker_1为什么要笑</td><td>speaker_1发笑是因为他觉得 speaker_2试图站在道德高地上用孝道和苍生大义来教训他，这在他看来既可笑又狂妄,他认为对方*没有资格*用道德来审判他</td></tr>
+            </table>
+          </div>
+    
+          <!-- English -->
+          <div class="language-column lang-en hidden">
+            <h4>English</h4>
+
+            <table id="qa1-en" class="qa1-en">
+              <tr><th>Task</th><th>Question</th><th>Answer</th></tr>
+              <tr><td>Cause Attribution</td><td>What is speaker_1’s emotion when saying *What right do you have to lecture me*, and what is the reason?</td><td>He feels angry because he believes he bears the heavy responsibility of the Ming Dynasty's *Two Capitals and Thirteen Provinces*, with the fate of the nation on his shoulders, and therefore thinks Hu Zongxian has no right to lecture him using the words *all the people under heaven*.</td></tr>
+              <tr><td>Cause Attribution</td><td>Why does speaker_1 laugh?</td><td>Speaker_1 laughs because he finds it absurd and arrogant that speaker_2 tries to take the moral high ground by invoking filial piety and the greater good; in his view, the other party *has no right* to judge him morally.</td></tr>
+              
+            </table>
+          </div>
+        </div>
+      </div>              
+
+    </div>
+  </section>
+
+  <script>
+    let currentLang = 'zh';
+    function toggleLanguage() {
+      const zhEls = document.querySelectorAll('.lang-zh');
+      const enEls = document.querySelectorAll('.lang-en');
+      if (currentLang === 'zh') {
+        zhEls.forEach(el => el.style.display = 'none');
+        enEls.forEach(el => el.style.display = 'block');
+        currentLang = 'en';
+      } else {
+        zhEls.forEach(el => el.style.display = 'block');
+        enEls.forEach(el => el.style.display = 'none');
+        currentLang = 'zh';
+      }
+    }
+
+    // 按钮
+    function toggleContent(button, classPrefix) {
+    const section = button.closest('.audio-section') || document;
+    const zhTable = section.querySelector(`#${classPrefix}-zh`);
+    const enTable = section.querySelector(`#${classPrefix}-en`);
+
+    const isHidden = zhTable && window.getComputedStyle(zhTable).display === 'none';
+
+    [zhTable, enTable].forEach(table => {
+      if (table) {
+        table.style.display = isHidden ? 'table' : 'none';
+      }
+    });
+
+    // 修改按钮文本
+    const currentLang = document.querySelector('.lang-en').classList.contains('hidden') ? 'zh' : 'en';
+        if (currentLang === 'zh') {
+        button.textContent = isHidden ? '隐藏问答内容' : '展示问答内容';
+        } else {
+        button.textContent = isHidden ? 'Hide QA' : 'Show QA';
+        }
+    }
+
+    // 初始化按钮文本（页面加载时）
+    document.addEventListener('DOMContentLoaded', () => {
+        const buttons = document.querySelectorAll('.toggle-button');
+        const currentLang = document.querySelector('.lang-en').classList.contains('hidden') ? 'zh' : 'en';
+        buttons.forEach(button => {
+        if (button.textContent.includes('问答') || button.textContent.includes('QA')) {
+            button.textContent = currentLang === 'zh' ? '展示问答内容' : 'Show QA';
+        }
+        });
+    });
+    // 默认隐藏所有转录和QA内容
+    document.querySelectorAll(' .qa1-en').forEach(table => {
+      table.style.display = 'none';
+    });
+    document.querySelectorAll('.qa1-zh').forEach(table => {
+      table.style.display = 'none';
+    });
+
+
+
+    // 自动语言初始化（根据浏览器语言）
+    window.onload = () => {
+      const lang = navigator.language || navigator.userLanguage;
+      if (lang.startsWith('en')) {
+        toggleLanguage();
+      }
+    };
+  </script>
+</body>
+</html>
